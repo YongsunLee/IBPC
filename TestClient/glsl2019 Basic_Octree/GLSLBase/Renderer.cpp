@@ -27,6 +27,8 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.geom", "./Shaders/Particle.frag");
 	//m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.frag");
 
+	m_CubeShader.compile("./Shaders/BoundingBox.vert", "./Shaders/BoundingBox.frag");
+
 	// Create Mesh Data
 	m_CubeMesh.load("./Resource/Model/LightingCheckBoard_smooth.fbx");
 
@@ -40,8 +42,6 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Objects
 	CreateSceneObject();
-
-	m_boundingBox.Init();
 }
 
 void Renderer::CreateVertexBufferObjects()
@@ -56,6 +56,56 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBORect);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
+
+	float temp = 0.5f;
+	
+	float cube[] = {
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, // first face : R
+
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp,  temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp, -temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //second face : G
+
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //third face : B
+
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		-temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //fourth face : R+G (yellow)
+
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp, -temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, // fifth face : R+B (purple)
+
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //sixth face : G+B (Cyan)
+	};
+
+	glGenBuffers(1, &m_VBOCube);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
 	CreateParticleVBO();
 }
@@ -90,7 +140,6 @@ void Renderer::CreateParticleVBO()
 void Renderer::Test()
 {
 	auto shader = m_SolidRectShader.get();
-	
 	glUseProgram(shader);
 
 	int attribPosition = glGetAttribLocation(shader, "a_Position");
@@ -101,6 +150,77 @@ void Renderer::Test()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawCube()
+{
+	GLuint shader = m_CubeShader.get();
+
+	glUseProgram(shader);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_ProjView"), 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribNormal = glGetAttribLocation(shader, "a_Normal");
+	int attribColor = glGetAttribLocation(shader, "a_Color");
+
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribNormal);
+	glEnableVertexAttribArray(attribColor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribNormal);
+	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::DrawCube(GameObject& obj)
+{
+	GLuint shader = m_CubeShader.get();
+
+	glUseProgram(shader);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_ProjView"), 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
+	glm::mat4 CubeTransform = obj.transform().mTransform * obj.mesh()->GetAABBTransform();
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Transform"), 1, GL_FALSE, &CubeTransform[0][0]);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribNormal = glGetAttribLocation(shader, "a_Normal");
+	int attribColor = glGetAttribLocation(shader, "a_Color");
+
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribNormal);
+	glEnableVertexAttribArray(attribColor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribNormal);
+	glDisableVertexAttribArray(attribColor);
 }
 
 void Renderer::DrawObject(GameObject& obj)
@@ -147,6 +267,7 @@ void Renderer::DrawObject(GameObject& obj)
 	glDisableVertexAttribArray(attribNormal);
 	glDisableVertexAttribArray(attribTexCoord);
 
+	DrawCube(obj);
 }
 
 void Renderer::DrawParticle()
@@ -202,8 +323,12 @@ void Renderer::DrawSystem()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	for (auto& obj : m_Objects)
+	{
 		DrawObject(obj);
+	}
+		
 	DrawParticle();
+
 
 	glDisable(GL_DEPTH_TEST);
 }

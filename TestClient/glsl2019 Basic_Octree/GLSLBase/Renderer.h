@@ -4,8 +4,6 @@
 #include "ShaderProgram.h"
 #include "Mesh.h"
 
-#include "BoundingBox.h"
-
 class Camera;
 class GameObject;
 
@@ -19,6 +17,8 @@ public:
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; };
 	
 	void Test();
+	void DrawCube();
+	void DrawCube(GameObject& obj);
 
 	// Draw Mesh Object
 	void DrawObject(GameObject& obj);
@@ -48,6 +48,7 @@ private:
 	// Shader
 		// Test Shader
 	ShaderProgram m_SolidRectShader;
+	ShaderProgram m_CubeShader;
 
 		// Shader to Use Paper
 	ShaderProgram m_MeshShader;
@@ -60,6 +61,8 @@ private:
 	// VBO
 	GLuint m_VBORect = 0;
 
+	GLuint m_VBOCube = 0;
+
 		//Particle VBO
 	GLuint m_ParticleVBO;
 
@@ -69,9 +72,5 @@ private:
 
 	// Test
 	float fTime = 0.0f;
-
-	// Test 
-
-	BoundingBox m_boundingBox;
 };
 
