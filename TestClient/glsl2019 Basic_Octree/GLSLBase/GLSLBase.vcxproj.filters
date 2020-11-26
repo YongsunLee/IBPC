@@ -34,7 +34,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>Light</Filter>
     </ClCompile>
-    <ClCompile Include="Octree.cpp" />
+    <ClCompile Include="Octree.cpp">
+      <Filter>Tree\Octree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

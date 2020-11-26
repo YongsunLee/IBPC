@@ -4,8 +4,11 @@
 #include "ShaderProgram.h"
 #include "Mesh.h"
 
+#include "Octree.h"
+
 class Camera;
 class GameObject;
+class OctreeNode;
 
 class Renderer
 {
@@ -18,6 +21,7 @@ public:
 	
 	void Test();
 	void DrawCube();
+	void DrawCube(glm::vec3 pos, float width);
 	void DrawCube(GameObject& obj);
 
 	// Draw Mesh Object
@@ -28,6 +32,8 @@ public:
 
 	// Draw All Object
 	void DrawSystem();
+
+	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -72,5 +78,7 @@ private:
 
 	// Test
 	float fTime = 0.0f;
+
+	OctreeNode* m_pOctree;
 };
 
