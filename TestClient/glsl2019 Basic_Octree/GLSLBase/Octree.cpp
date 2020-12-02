@@ -46,7 +46,21 @@ bool OctreeNode::IsInNode(const glm::vec3 pos)
 	return TRUE;
 }
 
+bool OctreeNode::IsInNode(const OctreeNode* node, const glm::vec3 pos)
+{
+	bool inside = false;
+	for (int i = 0; i < 3; i++) {
+		if (node->m_BoundingBox.min.x <= pos.x && node->m_BoundingBox.max.x >= pos.x &&
+			node->m_BoundingBox.min.y <= pos.y && node->m_BoundingBox.max.y >= pos.y &&
+			node->m_BoundingBox.min.z <= pos.z && node->m_BoundingBox.max.z >= pos.z) {
+			inside = true;
+		}
+	}
+
+	return inside;
+}
+
 void OctreeNode::Render()
 {
-
+	
 }

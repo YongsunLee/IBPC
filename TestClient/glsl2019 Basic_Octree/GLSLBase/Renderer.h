@@ -75,7 +75,6 @@ private:
 	// Light
 	DirectionalLight m_MainDirectionalLight;
 
-
 	// Test
 	float fTime = 0.0f;
 

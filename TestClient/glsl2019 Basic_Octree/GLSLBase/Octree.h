@@ -22,7 +22,8 @@ public:
 
 	// Pos Check
 	bool IsInNode(const glm::vec3 pos);
-	
+	bool IsInNode(const OctreeNode* node, const glm::vec3 pos);
+
 	// Render
 	void Render();
 
@@ -43,6 +44,8 @@ public:
 	OctreeNode* const GetParent() { return m_pParent; }
 
 private:
+	Box m_BoundingBox;
+
 	// Prev 1°³
 	OctreeNode* m_pParent;
 	

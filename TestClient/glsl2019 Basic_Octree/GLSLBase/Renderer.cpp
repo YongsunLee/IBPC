@@ -380,11 +380,7 @@ void Renderer::DrawSystem()
 	DrawParticle();
 
 	DrawCube(m_pOctree->GetPos(), m_pOctree->GetWidth());
-
-	for (auto& node : m_pOctree->GetChild())
-	{
-		DrawCube(node->GetPos(), node->GetWidth());
-	}
+	
 	
 	glDisable(GL_DEPTH_TEST);
 }

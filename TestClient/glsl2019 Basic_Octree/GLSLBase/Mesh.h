@@ -26,3 +26,16 @@ protected:
 	glm::mat4					mAABBTransform;
 	glm::vec3					mAABBCenter;
 };
+
+struct Box {
+	Box(glm::vec3 min, glm::vec3 max) {
+		this->min = glm::vec4(min, 1);
+		this->max = glm::vec4(max, 1);
+	}
+	Box() {
+		this->min = glm::vec4(0, 0, 0, 1);
+		this->max = glm::vec4(0, 0, 0, 1);
+	}
+	glm::vec4 min;
+	glm::vec4 max;
+};

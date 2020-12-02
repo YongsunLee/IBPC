@@ -17,5 +17,6 @@ public:
 
 private:
 	Mesh*		mpMesh;
+	Box			mBoundingBox;
 	Transform	mTransform;
 };
