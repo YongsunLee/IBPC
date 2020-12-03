@@ -113,6 +113,9 @@
     <None Include="Shaders\SSBOParticle.vert">
       <Filter>Shader\Particle\SSBO</Filter>
     </None>
+    <None Include="Shaders\UpdateComputeShader.comp">
+      <Filter>Shader\UpdateCompute</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -174,6 +177,9 @@
     </Filter>
     <Filter Include="Shader\Particle\SSBO">
       <UniqueIdentifier>{602fcb26-7a72-4e34-be67-818032c1af30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\UpdateCompute">
+      <UniqueIdentifier>{2210cbe7-4131-4e75-b0f4-1b662b5a6ea2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

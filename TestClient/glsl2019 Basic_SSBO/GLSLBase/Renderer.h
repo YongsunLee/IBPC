@@ -7,6 +7,7 @@
 class Camera;
 class GameObject;
 class ShaderStorageBufferObject;
+class OctreeNode;
 
 class Renderer
 {
@@ -28,6 +29,8 @@ public:
 	// Draw All Object
 	void DrawSystem();
 
+	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
+	void Update();
 	void Draw();
 
 private:
@@ -79,5 +82,8 @@ private:
 	std::vector<Vertex>	m_Particles;
 	ShaderProgram	m_SSBOParticleShader;
 
+	// Compute
+	ShaderProgram	m_UpdateComputeShader;
+	OctreeNode*			m_Root;
 };
 

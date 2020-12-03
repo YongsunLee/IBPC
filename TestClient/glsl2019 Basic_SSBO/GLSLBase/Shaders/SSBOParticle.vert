@@ -18,8 +18,6 @@ out vec3 v_Pos;
 out vec3 v_Dir;
 out float f_Speed;
 
-uniform float u_Time;
-
 const vec3 g_gravity = vec3(0, -1, 0);
 
 void main()

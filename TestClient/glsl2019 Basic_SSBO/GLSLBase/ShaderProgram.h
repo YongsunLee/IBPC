@@ -6,6 +6,7 @@ public:
 	~ShaderProgram();
 
 	void compile(const std::string& file_path_vs, const std::string& file_path_fs);
+	void compile(const std::string& file_path_com);
 	void compile(const std::string& file_path_vs, const std::string& file_path_gs, const std::string& file_path_fs);
 
 	GLuint get() const { return mHandle; }

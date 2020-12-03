@@ -2,95 +2,84 @@
 #include "GameObject.h"
 #include "Octree.h"
 
-#define MAX_DEPTH 5
-
-Octree::Octree()
+OctreeNode::OctreeNode()
 {
-	region = Box(glm::vec3(-1, 0, -1) * 0.5f, glm::vec3(1, 1, 1) * 0.5f);
+	m_pParent = nullptr;
+	m_fWidth = 0.0f;
 }
 
-Octree::Octree(Box region, std::vector<Vertex> particles, int id, int depth)
+OctreeNode::~OctreeNode()
 {
-	this->region = region;
 
-	int i = 0;
-	for (auto p : particles) {
-		this->mParticles.push_back(p);
-		this->mParticleIDs.push_back(i);
-		i++;
+}
+
+void OctreeNode::AddChildNode(OctreeNode* node)
+{
+	m_vChildren.push_back(node);
+}
+
+void OctreeNode::AddObject(Vertex* vertex)
+{
+	// 만약에 차일드가 있으면 (isLeaf)
+	// 이 버텍스가 child에 포함되는지 확인후 addobject
+	int childIndex = -1;
+	if (!isLeaf)
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			if (IsInNode(m_vChildren[i]->GetPos(), m_vChildren[i]->GetWidth(), vertex->pos))
+			{
+				childIndex = i;
+				break;
+			};
+		}
+
+		if (childIndex != -1) m_vChildren[childIndex]->AddObject(vertex);
 	}
-	this->id = id;
-	this->depth = depth;
-	buildTree();
-}
-
-Octree::~Octree()
-{
-}
-
-void Octree::buildTree()
-{
-	// MAX 깊이면
-	if (depth == MAX_DEPTH) {
-		isLeaf = 1;
-		treeBuilt = true;
-		return;
+	else
+	{
+		if (IsInNode(vertex->pos))
+			m_objects.push_back(vertex);
 	}
+}
 
-	glm::vec3 dimensions = region.max - region.min;
-	glm::vec3 half = dimensions * 0.5f;
-	glm::vec3 center = glm::vec3(region.min) + half;
+OctreeNode* const OctreeNode::GetChildNode(int index)
+{
+	return m_vChildren[index];
+}
 
-	// 자식노드 8개
-	Box* octant = new Box[8];
-	octant[0] = Box(region.min, center);
-	octant[1] = Box(glm::vec3(center.x, region.min.y, region.min.z), glm::vec3(region.max.x, center.y, center.z));
-	octant[2] = Box(glm::vec3(center.x, region.min.y, center.z), glm::vec3(region.max.x, center.y, region.max.z));
-	octant[3] = Box(glm::vec3(region.min.x, region.min.y, center.z), glm::vec3(center.x, center.y, region.max.z));
-	octant[4] = Box(glm::vec3(region.min.x, center.y, region.min.z), glm::vec3(center.x, region.max.y, center.z));
-	octant[5] = Box(glm::vec3(center.x, center.y, region.min.z), glm::vec3(region.max.x, region.max.y, center.z));
-	octant[6] = Box(center, region.max);
-	octant[7] = Box(glm::vec3(region.min.x, center.y, center.z), glm::vec3(center.x, region.max.y, region.max.z));
+bool OctreeNode::IsInNode(const glm::vec3 pos)
+{
+	float fMin, fMax;
 
-	std::vector<std::vector<Vertex>> octLists;
-	octLists.resize(8);
-	
-	// 파티클이 어느 자식노드에 속하는지
-	for (int i = 0; i < 8; i++) {
-		for (auto p : mParticles) {
-			if (aabbVSParticle(octant[i], p)) {
-				octLists[i].push_back(p);
-			}
+	// x축 최대, 최소, y축 최대, 최소, z축 최대 최소
+	for (int i = 0; i < 3; ++i) {
+		// Node의 포지션에 반지름을 이용하여 확인
+		fMin = m_vPos[i] - m_fWidth;
+		fMax = m_vPos[i] + m_fWidth;
+
+		if (pos[i] < fMin || pos[i] > fMax) {
+			return FALSE;
 		}
 	}
 
-	for (int i = 0; i < 8; i++) {
-		if (octLists[i].size()) {
-			int temp = octLists[i].size() * i;
-			children[i] = new Octree(octant[i], octLists[i], id, depth + 1);
-			mParticleIDs.push_back(i);
-		}
-	}
-
-	treeBuilt = true;
+	return TRUE;
 }
 
-void Octree::getNodes(Octree* curr, std::vector<Node>& nodes, std::list<Octree*> toProcess)
+bool OctreeNode::IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 pos)
 {
-	Node temp;
-	temp.info.x = curr->mParticleIDs.size();
-	temp.info.y = curr->isLeaf;
-	temp.info.z = curr->depth;
-	temp.region = curr->region;
-	
-	nodes.push_back(temp);
-	if (!toProcess.empty()) {
-		toProcess.pop_front();
+	glm::vec3 aabbMin;
+	glm::vec3 aabbMax;
+
+	aabbMin = nodePos - glm::vec3(nodeWidth);
+	aabbMax = nodePos + glm::vec3(nodeWidth);
+
+	bool inside = false;
+	if (aabbMin.x <= pos.x && aabbMax.x >= pos.x &&
+		aabbMin.y <= pos.y && aabbMax.y >= pos.y &&
+		aabbMin.z <= pos.z && aabbMax.z >= pos.z) {
+		inside = true;
 	}
 
-	getNodes(toProcess.front(), nodes, toProcess);
-
-	for (int i = 0; i < curr->mParticleIDs.size(); ++i) {
-		temp.particleRefs[i] = curr->mParticleIDs[i];
-	}
+	return inside;
 }

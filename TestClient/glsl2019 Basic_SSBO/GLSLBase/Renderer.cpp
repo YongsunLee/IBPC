@@ -1,8 +1,10 @@
+
 #include "stdafx.h"
 #include "Camera.h"
 #include "GameObject.h"
 #include "Renderer.h"
 #include "ShaderStorageBufferObject.h"
+#include "Octree.h"
 
 const float g_tick = 0.0166666666666667f;
 
@@ -30,8 +32,12 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	m_SSBOParticleShader.compile("./Shaders/SSBOParticle.vert", "./Shaders/SSBOParticle.geom", "./Shaders/SSBOParticle.frag");
 
+	m_UpdateComputeShader.compile("./Shaders/UpdateComputeShader.comp");
+
 	// Create Mesh Data
 	m_CubeMesh.load("./Resource/Model/LightingCheckBoard_smooth.fbx");
+
+
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -92,22 +98,112 @@ void Renderer::CreateParticleVBO()
 
 void Renderer::CreateSSBO()
 {
+	m_Root = BuildOctree(glm::vec3(0, 0, 0), 100, 1);
+
 	m_particleCnt = 50000;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> dir;
 	std::vector<float> speed;
 	for (int i = 0; i < m_particleCnt; i++) {
 		Vertex p;
-		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(0.0f, 60.0f), RAND_FLOAT(-50.0f, 50.0f)));
+		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(60.f, 120.0f), RAND_FLOAT(-50.0f, 50.0f)));
 		dir.push_back(p.dir = glm::vec3(0, -1.0f, 0));
-		speed.push_back(p.speed = RAND_FLOAT(1.0f, 5.0f));
+		speed.push_back(p.speed = RAND_FLOAT(0.0, 0.1f));
 
 		m_Particles.push_back(p);
+		m_Root->AddObject(&p);
 	}
 
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, positions));
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, dir));
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, speed));
+
+	// Texture
+
+	// Node Vectore
+	std::vector<OctreeNode::Node> nodes;
+
+	// Loop
+	OctreeNode* curr;
+	std::list<OctreeNode*> toProcess;
+	toProcess.push_back(m_Root);
+
+	glm::ivec2 pixel = glm::ivec2(0);
+	glm::ivec2 childOffset = glm::ivec2(1, 0);
+	glm::ivec2 TextureResolution = glm::ivec2(250, 250);
+	int ArrayOffset = 1;
+
+	glm::vec4 data = glm::vec4(0.0f);
+
+	while (!toProcess.empty())
+	{
+		curr = toProcess.front();
+
+		// 현재 픽셀좌표가 0이 아니면
+		if (pixel.x != 0) {
+			// 250 넘기면 맨 앞으로 보내려고
+			pixel.y += int(pixel.x / TextureResolution.x);
+			// x도 250 넘기면 맨앞으로 보내야지
+			pixel.x = pixel.x % TextureResolution.x;
+		}
+
+		// 자식 좌표
+		if (childOffset.x != 0) {
+			childOffset.y += int(childOffset.x / TextureResolution.x);
+			childOffset.x = childOffset.x % TextureResolution.x;
+		}
+
+		// 새로 노드 하나 생성
+		OctreeNode::Node octToNode;
+		// 옥트리 루트의 값을 노드로 변경해서 저장
+		//octToNode.info.x = curr->triangleIDs.size();
+		//octToNode.info.y = curr->GetChild().size();
+		//octToNode.info.z = curr->isLeaf;
+		//octToNode.info.w = curr->depth;
+		//
+		//// 현재 삼각형 ID 크기만큼
+		//for (int i = 0; i < curr->triangleIDs.size(); i++) {
+		//	// 새로 만든 노드의 Ref x에 해당 값을 넣어줌
+		//	octToNode.triangleRefs[i].x = curr->triangleIDs[i];
+		//}
+		//// Box도 같은 형태로
+		//octToNode.region = curr->region;
+		//
+		//// 노드 배열에 추가
+		//nodes.push_back(octToNode);
+		//
+		//// 현재 삼각형 인덱스의 크기가 0보다 크면 == 자식 노드가 있으면
+		//if (curr->trisIndices.size() > 0) {
+		//
+		//	// 현재 옥트리의 Active Child 갯수만큼
+		//	for (int i = 0; i < curr->trisIndices.size(); i++) {
+		//		// 반복문을 위한 to Process 추가
+		//		toProcess.push_back(curr->children[curr->trisIndices[i]]);
+		//	}
+		//
+		//	// 노드 data 세팅
+		//	data = glm::vec4(childrenOffset.x, childrenOffset.y, curr->trisIndices.size(), oneDimensionalOffset); // Offset x, y, number of active children, and offset in the one-dimensional array.
+		//
+		//	// 1차원 배열 offset 8개씩 밀어서
+		//	oneDimensionalOffset += curr->trisIndices.size();
+		//
+		//	// 자식 노드 오프셋도 8개 밀어서
+		//	childrenOffset.x += curr->trisIndices.size();
+		//}
+		//else {
+		//	// 인덱스가 0보다 작은경우 ( 리프 임 )
+		//	data = glm::vec4(0, 0, 0, 0);
+		//
+		//	// 오프셋 1개
+		//	oneDimensionalOffset += 1;
+		//}
+		//_offsetTexture->setData(glm::ivec2(1, 1), currPixel, &data);
+		//currPixel.x += 1;
+		toProcess.pop_front();
+	}
+
+	//m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, nodes));
+	//m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_Particles));
 }
 
 void Renderer::Test()
@@ -227,9 +323,28 @@ void Renderer::DrawSystem()
 		DrawObject(obj);
 	
 	//DrawParticle();
+	Update();
 	Draw();
 
 	glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::Update()
+{
+	auto shader = m_UpdateComputeShader.get();
+	glUseProgram(shader);
+
+	fTime += g_tick;
+	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
+
+
+
+
+
+	for (int i = 0; i < 3; i++) {
+		m_SSBOs[i]->bindBase(i);
+	}
+	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
 }
 
 void Renderer::Draw()
@@ -247,13 +362,44 @@ void Renderer::Draw()
 	auto& camera_pos = m_pCamera->GetPos();
 	glUniform3f(glGetUniformLocation(shader, "u_CameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
-	fTime += g_tick;
-
-	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
-
 	for (int i = 0; i < 3; i++) {
 		m_SSBOs[i]->bindBase(i);
 	}
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glDrawArraysInstanced(GL_POINTS, 0, 1, m_particleCnt);
 }	
+
+OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit)
+{
+	if (depthLimit < 0)
+		return NULL;
+
+	//현재 노드를 생성
+	OctreeNode* pOctNode = new OctreeNode();
+	pOctNode->SetPosition(vCenter);
+	pOctNode->SetWidth(fHalfWidth);
+
+	//재귀적으로 8개의 자식 노드들을 생성합니다.
+	glm::vec3 vOffset;
+	glm::vec3 vChildCenter;
+	FLOAT fStep = fHalfWidth * 0.5f;
+
+	//8개의 자식 노드들에 대해서 중심 위치를 설정하고 트리를 생성.
+	for (int i = 0; i < 8; ++i) {
+
+		vOffset[0] = ((i & 1) ? fStep : -fStep);
+		vOffset[1] = ((i & 4) ? fStep : -fStep);
+		vOffset[2] = ((i & 2) ? fStep : -fStep);
+
+		vChildCenter[0] = vOffset[0] / (float)2 + vCenter[0];
+		vChildCenter[1] = vOffset[1] / (float)2 + vCenter[1];
+		vChildCenter[2] = vOffset[2] / (float)2 + vCenter[2];
+
+		pOctNode->AddChildNode(BuildOctree(vChildCenter, fStep, depthLimit - 1));
+	}
+
+	if (depthLimit != 0)
+		pOctNode->SetIsLeaf(false);
+
+	return pOctNode;
+}

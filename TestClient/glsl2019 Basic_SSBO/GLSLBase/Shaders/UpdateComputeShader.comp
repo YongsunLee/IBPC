@@ -1,0 +1,33 @@
+#version 450
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+layout (std430, binding = 0) buffer a_Pos{
+	vec3 pos[];
+};
+
+
+layout (std430, binding = 1) buffer a_Dir{
+	vec3 dir[];
+};
+
+layout (std430, binding = 2) buffer a_Speed{
+	float speed;
+};
+
+uniform float u_Time;
+
+const vec3 g_gravity = vec3(0, -1, 0);
+
+void main()
+{
+	uint index = gl_GlobalInvocationID.x;
+	vec3 aPos = pos[index];
+	vec3 aDir = dir[index];
+	float aSpeed = speed;
+
+	aPos = aPos + ((aDir * speed) + (g_gravity * u_Time * speed));
+
+	pos[index] = aPos;
+	dir[index] = aDir;
+	speed = aSpeed;
+}

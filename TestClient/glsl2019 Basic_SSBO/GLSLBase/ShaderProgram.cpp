@@ -69,6 +69,55 @@ void ShaderProgram::compile(const std::string& file_path_vs, const std::string& 
 	std::cout << file_path_vs << ", " << file_path_fs << " Shader compiling is done.\n";
 }
 
+void ShaderProgram::compile(const std::string& file_path_com)
+{
+	ResetProgram();
+
+	mHandle = glCreateProgram(); //빈 쉐이더 프로그램 생성
+
+	if (GL_FALSE == mHandle) { //쉐이더 프로그램이 만들어졌는지 확인
+		fprintf(stderr, "Error creating shader program\n");
+	}
+
+	std::string com;
+
+	//shader.vs 가 vs 안으로 로딩됨
+	if (false == ReadFile(com, file_path_com)) {
+		printf("Error compiling compute shader\n");
+		return;
+	};
+
+	// ShaderProgram 에 vs.c_str() 버텍스 쉐이더를 컴파일한 결과를 attach함
+	AddShader(mHandle, com, GL_COMPUTE_SHADER);
+
+	GLint success = GL_FALSE;
+	GLchar ErrorLog[LOG_SIZE] = { 0 };
+
+	//Attach 완료된 shaderProgram 을 링킹함
+	glLinkProgram(mHandle);
+
+	//링크가 성공했는지 확인
+	glGetProgramiv(mHandle, GL_LINK_STATUS, &success);
+	
+	if (GL_FALSE == success) {
+		// shader program 로그를 받아옴
+		glGetProgramInfoLog(mHandle, sizeof(ErrorLog), NULL, ErrorLog);
+		std::cout << file_path_com << " Error linking shader program\n" << ErrorLog;
+		return;
+	}
+
+	glValidateProgram(mHandle);
+	glGetProgramiv(mHandle, GL_VALIDATE_STATUS, &success);
+	if (GL_FALSE == success) {
+		glGetProgramInfoLog(mHandle, sizeof(ErrorLog), NULL, ErrorLog);
+		std::cout << file_path_com << " Error validating shader program\n" << ErrorLog;
+		return;
+	}
+
+	glUseProgram(mHandle);
+	std::cout << file_path_com << " Shader compiling is done.\n";
+}
+
 void ShaderProgram::compile(const std::string& file_path_vs, const std::string& file_path_gs, const std::string& file_path_fs)
 {
 	ResetProgram();
