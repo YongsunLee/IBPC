@@ -18,4 +18,6 @@ public:
 private:
 	Mesh*		mpMesh;
 	Transform	mTransform;
+
+
 };

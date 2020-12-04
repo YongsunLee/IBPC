@@ -1,6 +1,39 @@
 #version 450
 layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
+struct Vertex {
+	vec3 pos;
+	vec3 dir;
+	float speed;
+	float collide_time;
+};
+
+struct Node {
+	vec3 pos;
+	float radius;
+	ivec4 info; // Node information: x = nrOfTriangles, y = number of active children, z = is node a leaf node? 
+	ivec4 vertexRef[2048]; // 
+};
+
+bool IsInNode(vec3 nodePos, float nodeWidth, const vec3 pos)
+{
+	vec3 aabbMin;
+	vec3 aabbMax;
+
+	aabbMin = nodePos - vec3(nodeWidth);
+	aabbMax = nodePos + vec3(nodeWidth);
+
+	bool inside = false;
+	if (aabbMin.x <= pos.x && aabbMax.x >= pos.x &&
+		aabbMin.y <= pos.y && aabbMax.y >= pos.y &&
+		aabbMin.z <= pos.z && aabbMax.z >= pos.z) {
+		inside = true;
+	}
+
+	return inside;
+}
+
+
 layout (std430, binding = 0) buffer a_Pos{
 	vec3 pos[];
 };
@@ -14,6 +47,16 @@ layout (std430, binding = 2) buffer a_Speed{
 	float speed;
 };
 
+layout (std430, binding = 3) readonly buffer NodeBuffer{
+	Node nodes[];
+};
+
+layout (std430, binding = 4) readonly buffer VertexBuffer{
+	Vertex vertex[];
+};
+
+uniform sampler2D u_Sampler;
+
 uniform float u_Time;
 
 const vec3 g_gravity = vec3(0, -1, 0);
@@ -24,6 +67,75 @@ void main()
 	vec3 aPos = pos[index];
 	vec3 aDir = dir[index];
 	float aSpeed = speed;
+
+	//aPos = aPos + ((aDir * speed) + (g_gravity * u_Time * speed));
+
+	ivec2 pixel = ivec2(0,0); // Root
+	bool foundLeaf = false;
+	int depthCounter = 0;
+	int nodeIndex = 0;
+
+	// 파티클이 현재 노드안에 있으면
+	if(IsInNode(nodes[0].pos, nodes[0].radius, aPos)){
+		
+		bool foundChild = false;
+		
+		// Leaf 노드까지 반복
+		while(!foundLeaf){
+
+			vec4 parentData = texelFetch(u_Sampler, pixel, 0);
+			pixel = ivec2(parentData.x, parentData.y); // x and y are the offset to the children in the texture.
+			foundChild = false;
+
+			// parentData.z 
+			// == trisIndices.size()
+			for(int i = 0; i < int(parentData.z); i++){
+				// Texture (250 x 250) 순환
+				if(i > 0){
+					pixel.x += 1;
+					pixel.y += (pixel.x / 250);
+					pixel.x %= 250;
+				}
+				// parentData.w
+				// == oneDimensionalOffset
+				if(IsInNode(nodes[int(parentData.w) + i].pos, nodes[int(parentData.w) + i].radius, aPos)){
+					nodeIndex = int(parentData.w) + i;
+					foundChild = true;
+					break;
+				}
+			}
+			
+			if(foundChild == false){
+				break;
+			}
+
+			// node.info.z == isLeaf (bool type)
+			if(nodes[nodeIndex].info.z == 1){
+				foundLeaf = true;
+				break;
+			}
+		}
+	}
+
+	
+	if(!foundLeaf){
+		Node leaf = nodes[nodeIndex];
+		
+		// node.info.x == triangleIDs.size()
+		// 삼각형 id 크기만큼 반복문
+		for(int i = 0; i < leaf.info.x; i++){
+			// node.triangleRef[i].x == triangleIDs[i]
+			// 현재 삼각형을 가져오는 것
+			Vertex vertex = vertex[leaf.vertexRef[i].x];
+			
+			float len = length(aPos.xyz - vertex.pos.xyz);
+
+			if ( 0.1f > len ) {
+				aSpeed = aSpeed * u_Time;
+				aDir = normalize(aPos.xyz - vertex.pos.xyz);
+			}
+		}
+	}
 
 	aPos = aPos + ((aDir * speed) + (g_gravity * u_Time * speed));
 

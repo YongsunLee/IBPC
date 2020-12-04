@@ -40,6 +40,9 @@
     <ClCompile Include="ShaderStorageBufferObject.cpp">
       <Filter>ShaderStorageObjectBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Object\Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -81,6 +84,9 @@
     <ClInclude Include="ShaderStorageBufferObject.h">
       <Filter>ShaderStorageObjectBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Object\Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SolidMesh.frag">
@@ -115,6 +121,12 @@
     </None>
     <None Include="Shaders\UpdateComputeShader.comp">
       <Filter>Shader\UpdateCompute</Filter>
+    </None>
+    <None Include="Shaders\BoundingBox.frag">
+      <Filter>Shader\Box</Filter>
+    </None>
+    <None Include="Shaders\BoundingBox.vert">
+      <Filter>Shader\Box</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +192,12 @@
     </Filter>
     <Filter Include="Shader\UpdateCompute">
       <UniqueIdentifier>{2210cbe7-4131-4e75-b0f4-1b662b5a6ea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Texture">
+      <UniqueIdentifier>{1c25c8a9-04aa-4ff2-8f10-f85d4220d5c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Box">
+      <UniqueIdentifier>{14c020d0-428b-4996-baa9-88f4187a8be9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

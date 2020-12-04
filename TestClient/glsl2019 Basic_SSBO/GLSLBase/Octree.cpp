@@ -43,6 +43,35 @@ void OctreeNode::AddObject(Vertex* vertex)
 	}
 }
 
+
+void OctreeNode::AddObject(Vertex* vertex, int idx)
+{
+	// 만약에 차일드가 있으면 (isLeaf)
+	// 이 버텍스가 child에 포함되는지 확인후 addobject
+	int childIndex = -1;
+	if (!isLeaf)
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			if (IsInNode(m_vChildren[i]->GetPos(), m_vChildren[i]->GetWidth(), vertex->pos))
+			{
+				childIndex = i;
+				break;
+			};
+		}
+
+		if (childIndex != -1) m_vChildren[childIndex]->AddObject(vertex, idx);
+	}
+	else
+	{
+		if (IsInNode(vertex->pos))
+		{
+			m_objects.push_back(vertex);
+			m_ObjectIDs.push_back(idx);
+		}
+	}
+}
+
 OctreeNode* const OctreeNode::GetChildNode(int index)
 {
 	return m_vChildren[index];

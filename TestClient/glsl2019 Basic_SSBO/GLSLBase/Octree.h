@@ -14,15 +14,11 @@ public:
 
 	// Add Obejct
 	void AddObject(Vertex* vertx);
+	void AddObject(Vertex* vertx, int idx);
 
 	// Pos Check
 	bool IsInNode(const glm::vec3 pos);
 	bool IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 pos);
-
-	void update(float f);
-
-	// Render
-	void Render();
 
 	// Set
 		// Set Prev Node
@@ -55,6 +51,12 @@ public:
 	// Get Parent
 	OctreeNode* const GetParent() { return m_pParent; }
 
+	// Get Object IDs
+	std::vector<int> const GetObejctIDs() { return m_ObjectIDs; }
+	std::vector<Vertex*> const GetObjectArray() { return m_objects; }
+
+	//Get IsLeaf
+	bool const GetIsLeaf() { return isLeaf; }
 
 private:
 	// Prev 1°³

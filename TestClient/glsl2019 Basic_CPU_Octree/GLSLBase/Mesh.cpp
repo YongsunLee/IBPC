@@ -16,22 +16,22 @@ Mesh::~Mesh()
 bool Mesh::load(const std::string& filepath)
 {
 	//     aiImportFile(path.c_str(), aiProcess_JoinIdenticalVertices | // 동일한 버텍스 결합, 인덱싱 최적화
-    //     aiProcess_ValidateDataStructure |						    // 로더의 출력을 검증
-    //     aiProcess_ImproveCacheLocality |							    // 출력 정점의 캐쉬위치를 개선
-    //     aiProcess_RemoveRedundantMaterials |						    // 중복된 매터리얼 제거
-    //     aiProcess_GenUVCoords |									    // 구형, 원통형, 상자 및 평면 매핑을 적절한 UV로 변환
-    //     aiProcess_TransformUVCoords |							    // UV 변환 처리기 (스케일링, 변환...)
-    //     aiProcess_FindInstances |								    // 인스턴스된 매쉬를 검색하여 하나의 마스터에 대한 참조로 제거
-    //     aiProcess_LimitBoneWeights |								    // 정점당 뼈의 가중치를 최대 4개로 제한
-    //     aiProcess_OptimizeMeshes |								    // 가능한 경우 작은 매쉬를 조인
-    //     aiProcess_GenSmoothNormals |								    // 부드러운 노말벡터(법선벡터) 생성
-    //     aiProcess_SplitLargeMeshes |								    // 거대한 하나의 매쉬를 하위매쉬들로 분활(나눔)
-    //     aiProcess_Triangulate |									    // 3개 이상의 모서리를 가진 다각형 면을 삼각형으로 만듬(나눔)
-    //     /* aiProcess_ConvertToLeftHanded |						    // D3D의 왼손좌표계로 변환 DX 사용할 경우 필요함 */
-    //     aiProcess_SortByPType);									    // 단일타입의 프리미티브로 구성된 '깨끗한' 매쉬를 만듬
-	
+		//     aiProcess_ValidateDataStructure |						    // 로더의 출력을 검증
+		//     aiProcess_ImproveCacheLocality |							    // 출력 정점의 캐쉬위치를 개선
+		//     aiProcess_RemoveRedundantMaterials |						    // 중복된 매터리얼 제거
+		//     aiProcess_GenUVCoords |									    // 구형, 원통형, 상자 및 평면 매핑을 적절한 UV로 변환
+		//     aiProcess_TransformUVCoords |							    // UV 변환 처리기 (스케일링, 변환...)
+		//     aiProcess_FindInstances |								    // 인스턴스된 매쉬를 검색하여 하나의 마스터에 대한 참조로 제거
+		//     aiProcess_LimitBoneWeights |								    // 정점당 뼈의 가중치를 최대 4개로 제한
+		//     aiProcess_OptimizeMeshes |								    // 가능한 경우 작은 매쉬를 조인
+		//     aiProcess_GenSmoothNormals |								    // 부드러운 노말벡터(법선벡터) 생성
+		//     aiProcess_SplitLargeMeshes |								    // 거대한 하나의 매쉬를 하위매쉬들로 분활(나눔)
+		//     aiProcess_Triangulate |									    // 3개 이상의 모서리를 가진 다각형 면을 삼각형으로 만듬(나눔)
+		//     /* aiProcess_ConvertToLeftHanded |						    // D3D의 왼손좌표계로 변환 DX 사용할 경우 필요함 */
+		//     aiProcess_SortByPType);									    // 단일타입의 프리미티브로 구성된 '깨끗한' 매쉬를 만듬
+
 	const aiScene* pScene = aiImportFile(
-		  filepath.c_str()
+		filepath.c_str()
 		, aiProcess_ValidateDataStructure
 		| aiProcess_JoinIdenticalVertices
 		| aiProcess_GenSmoothNormals
@@ -41,23 +41,13 @@ bool Mesh::load(const std::string& filepath)
 
 	if (nullptr == pScene) return false;
 
-	// 다중 메시 구현할 경우 0 을 index 로 고쳐줄 것.
 	aiMesh* pMesh = (pScene->mMeshes[0]);
-	
-	// AABB를 위한 Axis Min, Max
-	mAxisX.x = mAxisX.y = pMesh->mVertices[0].x;
-	mAxisY.x = mAxisY.y = pMesh->mVertices[0].y;
-	mAxisZ.x = mAxisZ.y = pMesh->mVertices[0].z;
+
+	// 다중 메시 구현할 경우 0 을 index 로 고쳐줄 것.
+
 	//삼각형이므로 면을 이루는 꼭지점 3개
 	mVertices.resize(pMesh->mNumVertices);
 	for (UINT i = 0; i < pMesh->mNumVertices; ++i) {
-		if (pMesh->mVertices[i].x < mAxisX.x) mAxisX.x = pMesh->mVertices[i].x;
-		if (pMesh->mVertices[i].x > mAxisX.y) mAxisX.y = pMesh->mVertices[i].x;
-		if (pMesh->mVertices[i].y < mAxisY.x) mAxisY.x = pMesh->mVertices[i].y;
-		if (pMesh->mVertices[i].y > mAxisY.y) mAxisY.y = pMesh->mVertices[i].y;
-		if (pMesh->mVertices[i].z < mAxisZ.x) mAxisZ.x = pMesh->mVertices[i].z;
-		if (pMesh->mVertices[i].z > mAxisZ.y) mAxisZ.y = pMesh->mVertices[i].z;
-
 		mVertices[i].pos = glm::vec3(pMesh->mVertices[i].x, pMesh->mVertices[i].y, pMesh->mVertices[i].z);
 		mVertices[i].norm = glm::vec3(pMesh->mNormals[i].x, pMesh->mNormals[i].y, pMesh->mNormals[i].z);
 		glm::vec2 tex;
@@ -66,12 +56,6 @@ bool Mesh::load(const std::string& filepath)
 			mVertices[i].tex_coord = glm::vec2(pMesh->mTextureCoords[0][i].x, pMesh->mTextureCoords[0][i].y);
 		}
 	}
-
-	// max_x - min_x, max_y - min_y, max_z - min_z
-	glm::vec3 size = glm::vec3(mAxisX.y - mAxisX.x, mAxisY.y - mAxisY.x, mAxisZ.y - mAxisZ.x);
-	
-	mAABBCenter = glm::vec3((mAxisX.x + mAxisX.y) / 2, (mAxisY.x + mAxisY.y) / 2, (mAxisZ.x + mAxisZ.y) / 2);
-	mAABBTransform = glm::translate(glm::mat4(1), mAABBCenter) * glm::scale(glm::mat4(1), size);
 
 	unsigned int idx = 0;
 	mIndices.resize(pMesh->mNumFaces * 3);
