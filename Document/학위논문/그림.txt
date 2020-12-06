@@ -1,0 +1,28 @@
+1장
+[그림 1] 2-step algorithm
+
+3장
+[그림 2] Transform Feedback Buffer Object Update
+[그림 3] Collision Pass
+[그림 4] Collision Detection Range
+[그림 5] Rendering Pass
+[그림 6] Billboard
+[그림 7] Collision Detection Camera located on the side and rear
+[그림 8] Render Scene and Collision Detection Texture along z-axis offset
+[그림 9] Fixed Collision Detection Camera and Mobile Render Camera
+
+4장
+[표 1] Experimental results(ms) according to the number of particles
+[그림 10] Bunny Mesh Collision Result
+[그림 11] Dragon Mesh Collision Result
+
+5장
+[그림 12] Collision Pass Off/On
+[그림 13] Particle Collision Result
+[그림 14] Camera Position Test
+[그림 15] Tested the particles after reducing the particle speed.
+[그림 16] The frequency of collisions per second increased 10 times.
+[그림 17] Move the camera
+[그림 18] Image-based Collision Processing Error
+
+
