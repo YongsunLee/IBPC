@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "ShaderStorageBufferObject.h"
 #include "Octree.h"
+#include "Texture.h"
 
 const float g_tick = 0.0166666666666667f;
 
@@ -30,14 +31,14 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.geom", "./Shaders/Particle.frag");
 	//m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.frag");
 
+	m_CubeShader.compile("./Shaders/BoundingBox.vert", "./Shaders/BoundingBox.frag");
+
 	m_SSBOParticleShader.compile("./Shaders/SSBOParticle.vert", "./Shaders/SSBOParticle.geom", "./Shaders/SSBOParticle.frag");
 
 	m_UpdateComputeShader.compile("./Shaders/UpdateComputeShader.comp");
 
 	// Create Mesh Data
 	m_CubeMesh.load("./Resource/Model/LightingCheckBoard_smooth.fbx");
-
-
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -65,6 +66,56 @@ void Renderer::CreateVertexBufferObjects()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
 
 	//CreateParticleVBO();
+
+	float temp = 0.5f;
+
+	float cube[] = {
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, // first face : R
+
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp, -temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //second face : G
+
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //third face : B
+
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		-temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //fourth face : R+G (yellow)
+
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, // fifth face : R+B (purple)
+
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //sixth face : G+B (Cyan)
+	};
+
+	glGenBuffers(1, &m_VBOCube);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
 	CreateSSBO();
 }
@@ -98,47 +149,69 @@ void Renderer::CreateParticleVBO()
 
 void Renderer::CreateSSBO()
 {
-	m_Root = BuildOctree(glm::vec3(0, 0, 0), 100, 1);
+	m_Root = BuildOctree(glm::vec3(0, 0, 0), 50, 3);
 
 	m_particleCnt = 50000;
+	m_Particles.resize(m_particleCnt);
+
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> dir;
 	std::vector<float> speed;
-	for (int i = 0; i < m_particleCnt; i++) {
-		Vertex p;
-		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(60.f, 120.0f), RAND_FLOAT(-50.0f, 50.0f)));
-		dir.push_back(p.dir = glm::vec3(0, -1.0f, 0));
+	std::vector<float> collideTime;
+	Vertex p;
+	for (int i = 0; i < m_particleCnt / 2; i++) {
+		//positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(-50.0f, 50.0f)));
+		//dir.push_back(p.dir = glm::vec3(0, -1.0f, 0));
+		//speed.push_back(p.speed = RAND_FLOAT(0.0, 0.1f));
+
+		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f)));
+		dir.push_back(p.dir = glm::vec3(-1.0f, 0.0f, 0));
 		speed.push_back(p.speed = RAND_FLOAT(0.0, 0.1f));
+		collideTime.push_back(p.collide_time = 0.0f);
 
 		m_Particles.push_back(p);
-		m_Root->AddObject(&p);
+		m_Root->AddObject(&p, i);
+	}
+
+	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
+		Vertex p;
+		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f)));
+		dir.push_back(p.dir = glm::vec3(1.0f, 0.0f, 0));
+		speed.push_back(p.speed = RAND_FLOAT(0.0, 0.1f));
+		collideTime.push_back(p.collide_time = 0.0f);
+
+		m_Particles.push_back(p);
+		m_Root->AddObject(&p, i);
 	}
 
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, positions));
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, dir));
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, speed));
+	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, collideTime));
 
 	// Texture
+	glm::ivec2 TextureResolution = glm::ivec2(250, 250);
+	m_NodeTexture = new Texture(Texture::RGBA16f, TextureResolution);
 
 	// Node Vectore
 	std::vector<OctreeNode::Node> nodes;
-
+	
 	// Loop
 	OctreeNode* curr;
 	std::list<OctreeNode*> toProcess;
 	toProcess.push_back(m_Root);
-
+	
 	glm::ivec2 pixel = glm::ivec2(0);
 	glm::ivec2 childOffset = glm::ivec2(1, 0);
-	glm::ivec2 TextureResolution = glm::ivec2(250, 250);
-	int ArrayOffset = 1;
-
+	int NodeArrayOffset = 1;
+	
 	glm::vec4 data = glm::vec4(0.0f);
-
+	
+	int particleCntTest = 0;
 	while (!toProcess.empty())
 	{
 		curr = toProcess.front();
-
+	
 		// 현재 픽셀좌표가 0이 아니면
 		if (pixel.x != 0) {
 			// 250 넘기면 맨 앞으로 보내려고
@@ -146,64 +219,85 @@ void Renderer::CreateSSBO()
 			// x도 250 넘기면 맨앞으로 보내야지
 			pixel.x = pixel.x % TextureResolution.x;
 		}
-
+	
 		// 자식 좌표
 		if (childOffset.x != 0) {
 			childOffset.y += int(childOffset.x / TextureResolution.x);
 			childOffset.x = childOffset.x % TextureResolution.x;
 		}
-
+	
 		// 새로 노드 하나 생성
 		OctreeNode::Node octToNode;
-		// 옥트리 루트의 값을 노드로 변경해서 저장
-		//octToNode.info.x = curr->triangleIDs.size();
-		//octToNode.info.y = curr->GetChild().size();
-		//octToNode.info.z = curr->isLeaf;
-		//octToNode.info.w = curr->depth;
+	
+		//현재 파티클이 이 트리에 포함되는가
+		//이 트리가 자식노드를 가지는가
+		//-> Yes 자식 탐색
+		//-> No 파티클 충돌 준비 (몇개의 파티클을 가지고 있는가, Ref 저장)
 		//
-		//// 현재 삼각형 ID 크기만큼
-		//for (int i = 0; i < curr->triangleIDs.size(); i++) {
-		//	// 새로 만든 노드의 Ref x에 해당 값을 넣어줌
-		//	octToNode.triangleRefs[i].x = curr->triangleIDs[i];
-		//}
-		//// Box도 같은 형태로
-		//octToNode.region = curr->region;
+		//자식노드 개수, 파티클 개수, 파티클 Ref 저장
 		//
-		//// 노드 배열에 추가
-		//nodes.push_back(octToNode);
+		//옥트리 루트의 값을 노드로 변경해서 저장
+		octToNode.info.x = curr->GetObejctIDs().size();	// Size는 파티클의 개수를 의미
+		octToNode.info.y = curr->GetChild().size();		// 자식개수
+		octToNode.info.z = curr->GetIsLeaf();			// Ref 노드인가?
+		octToNode.info.w = curr->GetDepth();			// depth
+		
+		//printf("isLeaf: %i, depth: %i, stored at pixel: (%i, %i) with number of Particles: %i\n", 
+		//	    octToNode.info.z, octToNode.info.w, pixel.x, pixel.y, octToNode.info.x);
+		particleCntTest += octToNode.info.x;
 		//
-		//// 현재 삼각형 인덱스의 크기가 0보다 크면 == 자식 노드가 있으면
-		//if (curr->trisIndices.size() > 0) {
-		//
-		//	// 현재 옥트리의 Active Child 갯수만큼
-		//	for (int i = 0; i < curr->trisIndices.size(); i++) {
-		//		// 반복문을 위한 to Process 추가
-		//		toProcess.push_back(curr->children[curr->trisIndices[i]]);
-		//	}
-		//
-		//	// 노드 data 세팅
-		//	data = glm::vec4(childrenOffset.x, childrenOffset.y, curr->trisIndices.size(), oneDimensionalOffset); // Offset x, y, number of active children, and offset in the one-dimensional array.
-		//
-		//	// 1차원 배열 offset 8개씩 밀어서
-		//	oneDimensionalOffset += curr->trisIndices.size();
-		//
-		//	// 자식 노드 오프셋도 8개 밀어서
-		//	childrenOffset.x += curr->trisIndices.size();
-		//}
-		//else {
-		//	// 인덱스가 0보다 작은경우 ( 리프 임 )
-		//	data = glm::vec4(0, 0, 0, 0);
-		//
-		//	// 오프셋 1개
-		//	oneDimensionalOffset += 1;
-		//}
-		//_offsetTexture->setData(glm::ivec2(1, 1), currPixel, &data);
-		//currPixel.x += 1;
+		
+		// 현재 파티클 개수만큼
+		for (int i = 0; i < curr->GetObejctIDs().size(); i++) {
+			// Ref 저장
+			octToNode.vertexRef[i].x = curr->GetObejctIDs()[i];
+		}
+		//BBox 용 Pos, Radius
+		octToNode.pos = curr->GetPos();
+		octToNode.radius = curr->GetWidth();
+		
+		// 노드 배열에 추가
+		nodes.push_back(octToNode);
+		
+		// 이 노드를 가리키는 data를 텍스처에 저장해야함
+		// 자식노드가 nullptr이면
+		if (curr->GetChildNode(0) == nullptr)
+		{
+			// 인덱스가 0보다 작은경우 ( 리프 임 )
+			data = glm::vec4(0, 0, 0, 0);
+
+			// 오프셋 1개
+			NodeArrayOffset += 1;
+		}
+		else
+		{
+			for (int i = 0; i < 8; ++i) {
+				toProcess.push_back(curr->GetChildNode(i));
+			}
+
+			// 노드 data 세팅
+			// Offset x, y, number of active children, and offset in the one-dimensional array.
+			data = glm::vec4(childOffset.x, childOffset.y, 8, NodeArrayOffset);
+
+			//printf("child offset (x, y) : %.f, %.f, NodeArryOffset : %.f\n", data.x, data.y, data.w);
+
+			// 1차원 배열 offset 8개씩 밀어서
+			NodeArrayOffset += 8;
+
+			// 자식 노드 오프셋도 8개 밀어서
+			childOffset.x += 8;
+		}
+
+		m_NodeTexture->setData(glm::ivec2(1, 1), pixel, &data);
+		pixel.x += 1;
 		toProcess.pop_front();
 	}
 
-	//m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, nodes));
-	//m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_Particles));
+	///printf("Node Cnt: %i\n", nodes.size());
+	printf("particle Cnt : %i\n", particleCntTest);
+	
+	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, nodes));
+	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_Particles));
 }
 
 void Renderer::Test()
@@ -319,14 +413,149 @@ void Renderer::DrawSystem()
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	for (auto& obj : m_Objects)
-		DrawObject(obj);
+	//for (auto& obj : m_Objects)
+	//	DrawObject(obj);
 	
 	//DrawParticle();
 	Update();
 	Draw();
 
+	//DrawCube(m_Root->GetPos(), m_Root->GetWidth());
+
+	OctreeNode* curr;
+	std::list<OctreeNode*> toProcess;
+	toProcess.push_back(m_Root);
+	while(!toProcess.empty())
+	{
+		curr = toProcess.front();
+		DrawCube(curr->GetPos(), curr->GetWidth());
+	
+		if (curr->GetChild()[0] == nullptr) break;
+		else
+		{
+			for (int i = 0; i < 8; ++i) {
+				DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
+				toProcess.push_back(curr->GetChildNode(i));
+			}
+		}
+	
+		toProcess.pop_front();
+	}
+
 	glDisable(GL_DEPTH_TEST);
+}
+
+
+void Renderer::DrawCube()
+{
+	GLuint shader = m_CubeShader.get();
+
+	glUseProgram(shader);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_ProjView"), 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
+
+	float width = 10.0f;
+	glm::mat4 CubeTransform = glm::scale(glm::mat4(1), glm::vec3(width));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Transform"), 1, GL_FALSE, &CubeTransform[0][0]);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribNormal = glGetAttribLocation(shader, "a_Normal");
+	int attribColor = glGetAttribLocation(shader, "a_Color");
+
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribNormal);
+	glEnableVertexAttribArray(attribColor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribNormal);
+	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::DrawCube(glm::vec3 pos, float width)
+{
+	GLuint shader = m_CubeShader.get();
+
+	glUseProgram(shader);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_ProjView"), 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
+
+	glm::mat4 CubeTransform = glm::translate(glm::mat4(1), pos) * glm::scale(glm::mat4(1), glm::vec3(width));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Transform"), 1, GL_FALSE, &CubeTransform[0][0]);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribNormal = glGetAttribLocation(shader, "a_Normal");
+	int attribColor = glGetAttribLocation(shader, "a_Color");
+
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribNormal);
+	glEnableVertexAttribArray(attribColor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribNormal);
+	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::DrawCube(GameObject& obj)
+{
+	GLuint shader = m_CubeShader.get();
+
+	glUseProgram(shader);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_ProjView"), 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
+
+	glm::mat4 CubeTransform = obj.transform().mTransform * obj.mesh()->GetAABBTransform();
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Transform"), 1, GL_FALSE, &CubeTransform[0][0]);
+
+	int attribPosition = glGetAttribLocation(shader, "a_Position");
+	int attribNormal = glGetAttribLocation(shader, "a_Normal");
+	int attribColor = glGetAttribLocation(shader, "a_Color");
+
+	glEnableVertexAttribArray(attribPosition);
+	glEnableVertexAttribArray(attribNormal);
+	glEnableVertexAttribArray(attribColor);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCube);
+
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribNormal);
+	glDisableVertexAttribArray(attribColor);
 }
 
 void Renderer::Update()
@@ -337,14 +566,14 @@ void Renderer::Update()
 	fTime += g_tick;
 	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
 
+	glUniform1i(glGetUniformLocation(shader, "u_NodeTexture"), 0);
+	m_NodeTexture->bind(0);
 
-
-
-
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 6; i++) {
 		m_SSBOs[i]->bindBase(i);
 	}
 	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void Renderer::Draw()
@@ -362,7 +591,7 @@ void Renderer::Draw()
 	auto& camera_pos = m_pCamera->GetPos();
 	glUniform3f(glGetUniformLocation(shader, "u_CameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 4; i++) {
 		m_SSBOs[i]->bindBase(i);
 	}
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -378,6 +607,7 @@ OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depth
 	OctreeNode* pOctNode = new OctreeNode();
 	pOctNode->SetPosition(vCenter);
 	pOctNode->SetWidth(fHalfWidth);
+	pOctNode->SetDepth(depthLimit);
 
 	//재귀적으로 8개의 자식 노드들을 생성합니다.
 	glm::vec3 vOffset;
@@ -398,8 +628,8 @@ OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depth
 		pOctNode->AddChildNode(BuildOctree(vChildCenter, fStep, depthLimit - 1));
 	}
 
-	if (depthLimit != 0)
-		pOctNode->SetIsLeaf(false);
+	if (depthLimit == 0)
+		pOctNode->SetIsLeaf(true);
 
 	return pOctNode;
 }

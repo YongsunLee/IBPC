@@ -44,19 +44,22 @@ layout (std430, binding = 1) buffer a_Dir{
 };
 
 layout (std430, binding = 2) buffer a_Speed{
-	float speed;
+	float speed[];
 };
 
-layout (std430, binding = 3) readonly buffer NodeBuffer{
+layout (std430, binding = 3) buffer a_CollideTime{
+	float collideTime[];
+};
+
+layout (std430, binding = 4) readonly buffer NodeBuffer{
 	Node nodes[];
 };
 
-layout (std430, binding = 4) readonly buffer VertexBuffer{
+layout (std430, binding = 5) readonly buffer VertexBuffer{
 	Vertex vertex[];
 };
 
-uniform sampler2D u_Sampler;
-
+uniform sampler2D u_NodeTexture;
 uniform float u_Time;
 
 const vec3 g_gravity = vec3(0, -1, 0);
@@ -66,7 +69,8 @@ void main()
 	uint index = gl_GlobalInvocationID.x;
 	vec3 aPos = pos[index];
 	vec3 aDir = dir[index];
-	float aSpeed = speed;
+	float aSpeed = speed[index];
+	float aCollideTime = collideTime[index];
 
 	//aPos = aPos + ((aDir * speed) + (g_gravity * u_Time * speed));
 
@@ -74,6 +78,7 @@ void main()
 	bool foundLeaf = false;
 	int depthCounter = 0;
 	int nodeIndex = 0;
+	
 
 	// 파티클이 현재 노드안에 있으면
 	if(IsInNode(nodes[0].pos, nodes[0].radius, aPos)){
@@ -82,16 +87,18 @@ void main()
 		
 		// Leaf 노드까지 반복
 		while(!foundLeaf){
-
-			vec4 parentData = texelFetch(u_Sampler, pixel, 0);
+	
+			vec4 parentData = texelFetch(u_NodeTexture, pixel, 0);
 			pixel = ivec2(parentData.x, parentData.y); // x and y are the offset to the children in the texture.
 			foundChild = false;
-
+	
 			// parentData.z 
 			// == trisIndices.size()
 			for(int i = 0; i < int(parentData.z); i++){
 				// Texture (250 x 250) 순환
 				if(i > 0){
+				// Texture 자식노드좌표
+				// 다음 루프용으로 증가시키는 것
 					pixel.x += 1;
 					pixel.y += (pixel.x / 250);
 					pixel.x %= 250;
@@ -101,6 +108,8 @@ void main()
 				if(IsInNode(nodes[int(parentData.w) + i].pos, nodes[int(parentData.w) + i].radius, aPos)){
 					nodeIndex = int(parentData.w) + i;
 					foundChild = true;
+
+					
 					break;
 				}
 			}
@@ -108,7 +117,7 @@ void main()
 			if(foundChild == false){
 				break;
 			}
-
+	
 			// node.info.z == isLeaf (bool type)
 			if(nodes[nodeIndex].info.z == 1){
 				foundLeaf = true;
@@ -117,29 +126,29 @@ void main()
 		}
 	}
 
-	
-	if(!foundLeaf){
+	if(foundLeaf){
+		// Leaf Node의 파티클 개수
 		Node leaf = nodes[nodeIndex];
-		
-		// node.info.x == triangleIDs.size()
-		// 삼각형 id 크기만큼 반복문
-		for(int i = 0; i < leaf.info.x; i++){
-			// node.triangleRef[i].x == triangleIDs[i]
-			// 현재 삼각형을 가져오는 것
-			Vertex vertex = vertex[leaf.vertexRef[i].x];
+		for(int i = 0; i < leaf.info.x; ++i)
+		{
+			Vertex object = vertex[leaf.vertexRef[i].x];
 			
-			float len = length(aPos.xyz - vertex.pos.xyz);
-
-			if ( 0.1f > len ) {
-				aSpeed = aSpeed * u_Time;
-				aDir = normalize(aPos.xyz - vertex.pos.xyz);
+			float len = length(aPos.xyz - object.pos.xyz);
+			if( 10.f > len )
+			{
+				aDir = normalize(aPos.xyz - object.pos.xyz);
+				aSpeed = aSpeed * 0.2f;
+				aCollideTime = 10.0f;
 			}
 		}
 	}
-
-	aPos = aPos + ((aDir * speed) + (g_gravity * u_Time * speed));
+	
+	//aPos = aPos + (g_gravity * u_Time);
+	
+	aPos = aPos + ((aDir * aSpeed)); // + (g_gravity * u_Time * aSpeed));
 
 	pos[index] = aPos;
 	dir[index] = aDir;
-	speed = aSpeed;
+	speed[index] = aSpeed;
+	collideTime[index] = aCollideTime;
 }

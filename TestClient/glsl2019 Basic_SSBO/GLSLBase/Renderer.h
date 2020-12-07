@@ -8,6 +8,7 @@ class Camera;
 class GameObject;
 class ShaderStorageBufferObject;
 class OctreeNode;
+class Texture;
 
 class Renderer
 {
@@ -28,6 +29,11 @@ public:
 
 	// Draw All Object
 	void DrawSystem();
+
+	// Draw BBox
+	void DrawCube();
+	void DrawCube(glm::vec3 pos, float width);
+	void DrawCube(GameObject& obj);
 
 	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
 	void Update();
@@ -84,6 +90,13 @@ private:
 
 	// Compute
 	ShaderProgram	m_UpdateComputeShader;
-	OctreeNode*			m_Root;
+	OctreeNode*		m_Root;
+
+	Texture*		m_NodeTexture;
+
+	// BBox
+	ShaderProgram	m_CubeShader;
+	GLuint			m_VBOCube;
+
 };
 

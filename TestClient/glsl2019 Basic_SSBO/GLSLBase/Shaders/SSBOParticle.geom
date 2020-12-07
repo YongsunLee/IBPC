@@ -9,10 +9,12 @@ uniform vec3 u_CameraPos;
 in vec3 v_Pos[];
 in vec3 v_Dir[];
 in float f_Speed[];
+in float f_collideTime[];
 
 out vec3 vPos;
 out vec3 vDir;
 out float fSpeed;
+out float fCollideTime;
 
 const float size = 0.05f;
 
@@ -25,12 +27,20 @@ void main()
 	up = cross(to_camera, right);
 
 	gl_Position = u_ProjView * vec4(base + ((right + up) * size), 1);
+    fSpeed = f_Speed[0];
+    fCollideTime = f_collideTime[0];
     EmitVertex();   
     gl_Position = u_ProjView * vec4(base + ((right - up) * size), 1);
+    fSpeed = f_Speed[0];
+    fCollideTime = f_collideTime[0];
     EmitVertex();
     gl_Position = u_ProjView * vec4(base + ((-right + up) * size), 1);
+    fSpeed = f_Speed[0];
+    fCollideTime = f_collideTime[0];
     EmitVertex();
     gl_Position = u_ProjView * vec4(base + ((-right - up) * size), 1);
+    fSpeed = f_Speed[0];
+    fCollideTime = f_collideTime[0];
     EmitVertex();
 
     EndPrimitive();

@@ -33,7 +33,11 @@ public:
 	// Set Next Node
 	void AddChildNode(OctreeNode* node);
 
+	// Set Leaf
 	void SetIsLeaf(bool b) { isLeaf = b; }
+
+	// Set Depth
+	void SetDepth(int d) { m_depth = d; }
 
 	// Get
 		// Get Pos
@@ -58,6 +62,8 @@ public:
 	//Get IsLeaf
 	bool const GetIsLeaf() { return isLeaf; }
 
+	int const GetDepth() { return  m_depth; }
+
 private:
 	// Prev 1°³
 	OctreeNode* m_pParent;
@@ -69,8 +75,10 @@ private:
 	std::vector<Vertex*> m_objects;
 	std::vector<int> m_ObjectIDs;
 
-	bool isLeaf = true;
+	bool isLeaf = false;
 
 	glm::vec3 m_vPos;
 	float m_fWidth;
+
+	int m_depth = 0;
 };
