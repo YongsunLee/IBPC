@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GLSLBase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadPng.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>ShaderProgram</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Object\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Object\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Object\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Object\Vertex</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>Tree\Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderStorageBufferObject.cpp">
+      <Filter>ShaderStorageBufferObject</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadPng.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>ShaderProgram</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Object\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Object\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Object\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Object\Vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>Tree\Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStorageBufferObject.h">
+      <Filter>ShaderStorageBufferObject</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\SolidMesh.frag">
+      <Filter>Shader\Mesh</Filter>
+    </None>
+    <None Include="Shaders\SolidMesh.vert">
+      <Filter>Shader\Mesh</Filter>
+    </None>
+    <None Include="Shaders\Particle.frag">
+      <Filter>Shader\Particle</Filter>
+    </None>
+    <None Include="Shaders\Particle.geom">
+      <Filter>Shader\Particle</Filter>
+    </None>
+    <None Include="Shaders\Particle.vert">
+      <Filter>Shader\Particle</Filter>
+    </None>
+    <None Include="Shaders\BoundingBox.frag">
+      <Filter>Shader\BoundingBox</Filter>
+    </None>
+    <None Include="Shaders\BoundingBox.vert">
+      <Filter>Shader\BoundingBox</Filter>
+    </None>
+    <None Include="Shaders\SolidRect.frag">
+      <Filter>Shader\SolidRect</Filter>
+    </None>
+    <None Include="Shaders\SolidRect.vert">
+      <Filter>Shader\SolidRect</Filter>
+    </None>
+    <None Include="Shaders\SSBOParticle.frag">
+      <Filter>Shader\Particle\SSBO</Filter>
+    </None>
+    <None Include="Shaders\SSBOParticle.geom">
+      <Filter>Shader\Particle\SSBO</Filter>
+    </None>
+    <None Include="Shaders\SSBOParticle.vert">
+      <Filter>Shader\Particle\SSBO</Filter>
+    </None>
+    <None Include="Shaders\SSBOsParticle.frag">
+      <Filter>Shader\Particle\SSBOs</Filter>
+    </None>
+    <None Include="Shaders\SSBOsParticle.geom">
+      <Filter>Shader\Particle\SSBOs</Filter>
+    </None>
+    <None Include="Shaders\SSBOsParticle.vert">
+      <Filter>Shader\Particle\SSBOs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{a7fcb93d-3717-43ab-b316-e9d0ce5b8225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{281c75ca-d516-457d-94dd-38314bf09c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{67bf60d2-2daa-4412-a92a-1ef604d4703f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{a641ffd5-29bd-451d-b95f-a10ed09b4616}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{52df4921-60ed-4a63-88a4-039bf9e09b3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderProgram">
+      <UniqueIdentifier>{7c77ef22-07f8-479b-af70-58557aef7eaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{3f8b847a-d104-4e91-8212-8de8ca8fd891}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\GameObject">
+      <UniqueIdentifier>{3d9eff6d-501a-4ed7-b574-7b59017b8bc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Mesh">
+      <UniqueIdentifier>{db3465d4-c39a-413f-bd56-2453ad911855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Transform">
+      <UniqueIdentifier>{96462caf-74d1-40ff-9adf-bd0769c316e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Vertex">
+      <UniqueIdentifier>{afee57e7-be31-4d80-aedd-484908649236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Light">
+      <UniqueIdentifier>{480c5f9a-a9fe-4612-a722-f177cd4a2f70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Mesh">
+      <UniqueIdentifier>{a3dfee78-8700-446c-bf83-987f3b84ee71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Particle">
+      <UniqueIdentifier>{a3ae481c-e706-4b07-bc59-ad753569a437}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\SolidRect">
+      <UniqueIdentifier>{dc15eda7-bdae-43e0-b8b1-ddf20c764e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tree">
+      <UniqueIdentifier>{0855dcf1-057c-411a-aed0-8fad2d57b510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tree\Octree">
+      <UniqueIdentifier>{02631514-7741-4065-b390-383ad52726b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\BoundingBox">
+      <UniqueIdentifier>{673497a9-b0f7-4e67-9cd5-fa885a0c1def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Particle\SSBO">
+      <UniqueIdentifier>{e03ddc2e-2024-4013-8d57-3e75ef8a9ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderStorageBufferObject">
+      <UniqueIdentifier>{fbf0e5a6-27a3-4370-83fa-5018c36045cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Particle\SSBOs">
+      <UniqueIdentifier>{f3cf26c2-86de-4fbc-952d-a7192ebedf3a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
