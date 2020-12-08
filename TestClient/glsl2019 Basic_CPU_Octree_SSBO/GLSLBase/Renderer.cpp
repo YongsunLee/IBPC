@@ -27,7 +27,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.geom", "./Shaders/Particle.frag");
 	//m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.frag");
 
-	m_SSBOsParticleShader.compile("./Shaders/SSBOsParticle.vert", "./Shaders/SSBOsParticle.geom", "./Shaders/SSBOsParticle.frag");
+	//m_SSBOsParticleShader.compile("./Shaders/SSBOsParticle.vert", "./Shaders/SSBOsParticle.geom", "./Shaders/SSBOsParticle.frag");
 	m_SSBOParticleShader.compile("./Shaders/SSBOParticle.vert", "./Shaders/SSBOParticle.geom", "./Shaders/SSBOParticle.frag");
 
 	m_CubeShader.compile("./Shaders/BoundingBox.vert", "./Shaders/BoundingBox.frag");
@@ -186,13 +186,15 @@ void Renderer::CreateParticleSSBOs()
 
 void Renderer::CreateParticleSSBO()
 {
-	m_particleCnt = 1024;
+	m_particleCnt = 50000;
 
 	Vertex vertex;
 	for (int j = 0; j < m_particleCnt; ++j) {
-		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(20.0, 20.f), RAND_FLOAT(-25.0f, 25.0f));
+		//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(20.0, 20.f), RAND_FLOAT(-25.0f, 25.0f));
+		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-25.0f, 25.0f));
+
 		vertex.dir = glm::vec3(0, -1.0f, 0);
-		vertex.speed = RAND_FLOAT(2.0, 5.0f);
+		vertex.speed = RAND_FLOAT(5.0, 10.0f);
 		vertex.collide_time = 0.0f;
 
 		m_ParticlesSSBO.push_back(vertex);
@@ -433,17 +435,19 @@ void Renderer::DrawSSBOParticle()
 		glUniformMatrix4fv(gProjViewId, 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
 	}
 
+	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
+
 	glUniform1i(glGetUniformLocation(shader, "u_ClientWidth"), g_ClientWidth);
 	glUniform1i(glGetUniformLocation(shader, "u_ClientHeight"), g_ClientHeight);
 	auto& camera_pos = m_pCamera->GetPos();
 	glUniform3f(glGetUniformLocation(shader, "u_CameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
 	m_SSBO[0]->bindBase(0);
-	glBindVertexArray(emptyVAO);
+	//glBindVertexArray(emptyVAO);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//glDrawArraysInstanced(GL_POINTS, 0, 1, m_particleCnt);
 	glDrawArrays(GL_POINTS, 0, m_particleCnt);
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 }
 
 void Renderer::DrawSSBOsParticle()
@@ -480,7 +484,7 @@ void Renderer::UpdateOctree()
 	for (auto p : m_ParticlesSSBO)
 	{
 		// CPU Particle Position Update
-		//p.pos = p.pos + ((p.dir * p.speed) + (glm::vec3(0, -1, 0) * fTime * p.speed));
+		p.pos = p.pos + ((p.dir * p.speed) + (glm::vec3(0, -1, 0) * fTime * p.speed));
 	
 		if (m_pOctree->IsInNode(p.pos))
 			m_pOctree->AddObject(&p);
@@ -524,7 +528,7 @@ void Renderer::DrawOctreee()
 		toProcess.pop_front();
 	}
 	
-	printf("%d\n", cnt);
+	//printf("%d\n", cnt);
 }
 
 void Renderer::DrawSystem()
@@ -545,8 +549,8 @@ void Renderer::DrawSystem()
 	DrawSSBOParticle();
 
 	// Octree
-	//DrawOctreee();
-	//UpdateOctree();
+	DrawOctreee();
+	UpdateOctree();
 
 	glDisable(GL_DEPTH_TEST);
 }

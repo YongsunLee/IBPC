@@ -10,8 +10,8 @@ public:
 	union {
 		struct {
 			glm::vec3 pos;
-			glm::vec3 dir;
 			float speed;
+			glm::vec3 dir;
 			float collide_time;
 		};
 		struct {
