@@ -30,8 +30,13 @@ public:
 	// Draw Particle
 	void DrawParticle();
 
+	void UpdateOctree();
+	void DrawOctreee();
+
 	// Draw All Object
 	void DrawSystem();
+
+
 
 	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
 

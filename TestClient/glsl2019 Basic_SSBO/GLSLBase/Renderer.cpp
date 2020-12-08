@@ -151,15 +151,14 @@ void Renderer::CreateSSBO()
 {
 	m_Root = BuildOctree(glm::vec3(0, 0, 0), 50, 3);
 
-	m_particleCnt = 50000;
-	m_Particles.resize(m_particleCnt);
+	m_particleCnt = 10000;
 
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> dir;
 	std::vector<float> speed;
 	std::vector<float> collideTime;
-	Vertex p;
 	for (int i = 0; i < m_particleCnt / 2; i++) {
+		Vertex p;
 		//positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(-50.0f, 50.0f)));
 		//dir.push_back(p.dir = glm::vec3(0, -1.0f, 0));
 		//speed.push_back(p.speed = RAND_FLOAT(0.0, 0.1f));
@@ -173,6 +172,7 @@ void Renderer::CreateSSBO()
 		m_Root->AddObject(&p, i);
 	}
 
+
 	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
 		Vertex p;
 		positions.push_back(p.pos = glm::vec3(RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f), RAND_FLOAT(-25.0, 25.0f)));
@@ -183,6 +183,11 @@ void Renderer::CreateSSBO()
 		m_Particles.push_back(p);
 		m_Root->AddObject(&p, i);
 	}
+	printf("%d\n", m_Particles.size());
+
+	printf("%.f, %.f, %.f\n", positions[0].x, positions[0].y, positions[0].z);
+	printf("%.f, %.f, %.f\n", dir[0].x, dir[0].y, dir[0].z);
+	printf("%.f, %.f, %.f\n", m_Particles[0].pos.x, m_Particles[0].pos.y, m_Particles[0].pos.z);
 
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, positions));
 	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, dir));
@@ -428,13 +433,14 @@ void Renderer::DrawSystem()
 	while(!toProcess.empty())
 	{
 		curr = toProcess.front();
-		DrawCube(curr->GetPos(), curr->GetWidth());
+			DrawCube(curr->GetPos(), curr->GetWidth());
 	
 		if (curr->GetChild()[0] == nullptr) break;
 		else
 		{
 			for (int i = 0; i < 8; ++i) {
-				DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
+					DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
+
 				toProcess.push_back(curr->GetChildNode(i));
 			}
 		}
@@ -574,6 +580,15 @@ void Renderer::Update()
 	}
 	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	
+	m_Root->Rebuild();
+
+	int cnt = 0;
+	for (auto p : m_Particles)
+	{
+		m_Root->AddObject(&p, cnt);
+		cnt += 1;
+	}
 }
 
 void Renderer::Draw()

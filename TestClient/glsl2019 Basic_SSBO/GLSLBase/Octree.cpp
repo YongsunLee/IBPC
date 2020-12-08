@@ -43,7 +43,6 @@ void OctreeNode::AddObject(Vertex* vertex)
 	}
 }
 
-
 void OctreeNode::AddObject(Vertex* vertex, int idx)
 {
 	// 만약에 차일드가 있으면 (isLeaf)
@@ -79,29 +78,11 @@ OctreeNode* const OctreeNode::GetChildNode(int index)
 
 bool OctreeNode::IsInNode(const glm::vec3 pos)
 {
-	float fMin, fMax;
-
-	// x축 최대, 최소, y축 최대, 최소, z축 최대 최소
-	for (int i = 0; i < 3; ++i) {
-		// Node의 포지션에 반지름을 이용하여 확인
-		fMin = m_vPos[i] - m_fWidth;
-		fMax = m_vPos[i] + m_fWidth;
-
-		if (pos[i] < fMin || pos[i] > fMax) {
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-bool OctreeNode::IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 pos)
-{
 	glm::vec3 aabbMin;
 	glm::vec3 aabbMax;
 
-	aabbMin = nodePos - glm::vec3(nodeWidth);
-	aabbMax = nodePos + glm::vec3(nodeWidth);
+	aabbMin = m_vPos - glm::vec3(m_fWidth * 0.5f);
+	aabbMax = m_vPos + glm::vec3(m_fWidth * 0.5f);
 
 	bool inside = false;
 	if (aabbMin.x <= pos.x && aabbMax.x >= pos.x &&
@@ -111,4 +92,36 @@ bool OctreeNode::IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 po
 	}
 
 	return inside;
+}
+
+bool OctreeNode::IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 pos)
+{
+	glm::vec3 aabbMin;
+	glm::vec3 aabbMax;
+
+	aabbMin = nodePos - glm::vec3(nodeWidth * 0.5f);
+	aabbMax = nodePos + glm::vec3(nodeWidth * 0.5f);
+
+	bool inside = false;
+	if (aabbMin.x <= pos.x && aabbMax.x >= pos.x &&
+		aabbMin.y <= pos.y && aabbMax.y >= pos.y &&
+		aabbMin.z <= pos.z && aabbMax.z >= pos.z) {
+		inside = true;
+	}
+
+	return inside;
+}
+
+void OctreeNode::Rebuild()
+{
+	for (int i = 0; i < 8; i++)
+	{
+		if (m_vChildren[i])
+		{
+			m_vChildren[i]->Rebuild();
+		}
+
+		m_objects.clear();
+		m_ObjectIDs.clear();
+	}
 }

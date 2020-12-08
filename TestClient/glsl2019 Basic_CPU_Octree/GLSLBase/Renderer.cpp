@@ -33,13 +33,8 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_CubeMesh.load("./Resource/Model/LightingCheckBoard_smooth.fbx");
 
 	// Octree
-	m_pOctree = new OctreeNode();
-	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 100, 1);
-
-	for (int i = 0; i < 8; ++i)
-	{
-		m_pOctree->GetChildNode(i)->SetParent(m_pOctree);
-	}
+	m_pOctree = new OctreeNode();	
+	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 50, 3);
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -67,49 +62,49 @@ void Renderer::CreateVertexBufferObjects()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
 
 	float temp = 0.5f;
-	
+
 	float cube[] = {
-		-temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		-temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		 temp, -temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		 temp,  temp,  temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, // first face : R
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp,  temp, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, // first face : R
 
-		 temp, -temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp,  temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp,  temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp, -temp,  temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp, -temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp,  temp, -temp, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //second face : G
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp, -temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //second face : G
 
-		-temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp,  temp,  temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp,  temp, -temp, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //third face : B
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp,  temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //third face : B
 
-		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		-temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
-		 temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		 temp,  temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f,
-		 temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, 1.f, //fourth face : R+G (yellow)
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		-temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
+		 temp,  temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f, //fourth face : R+G (yellow)
 
-		-temp, -temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp,  temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp,  temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp,  temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp,  temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, // fifth face : R+B (purple)
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp,  temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp, -temp, -1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, // fifth face : R+B (purple)
 
-		-temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		 temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp,  temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f,
-		 temp, -temp, -temp, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 1.f, //sixth face : G+B (Cyan)
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		-temp, -temp,  temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
+		-temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f,
+		 temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, //sixth face : G+B (Cyan)
 	};
 
 	glGenBuffers(1, &m_VBOCube);
@@ -130,15 +125,15 @@ void Renderer::CreateSceneObject()
 
 void Renderer::CreateParticleVBO()
 {
-	int cnt = 50000;
-	//std::vector<Vertex> particles;
+	int cnt = 1024;
 	
 	Vertex vertex;
 	for (int j = 0; j < cnt; ++j) {
-		vertex.pos = glm::vec3(RAND_FLOAT(-50.0f, 50.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-50.0f, 50.0f));
+		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-25.0f, 25.0f));
 		vertex.dir = glm::vec3(0, -1.0f, 0);
-		vertex.speed = RAND_FLOAT(0.0, 1.0f);
+		vertex.speed = RAND_FLOAT(2.0, 5.0f);
 		m_Particles.push_back(vertex);
+
 		if(m_pOctree->IsInNode(vertex.pos)) 
 			m_pOctree->AddObject(&vertex);
 	}
@@ -366,6 +361,56 @@ void Renderer::DrawParticle()
 	glDisableVertexAttribArray(aCollideTime);
 }
 
+void Renderer::UpdateOctree()
+{
+	// all tree Object Clear
+	m_pOctree->Rebuild();
+	
+	for (auto p : m_Particles)
+	{
+		// CPU Particle Position Update
+		p.pos = p.pos + ((p.dir * p.speed) + (glm::vec3(0, -1, 0) * fTime * p.speed));
+	
+		if (m_pOctree->IsInNode(p.pos))
+			m_pOctree->AddObject(&p);
+	}
+}
+
+void Renderer::DrawOctreee()
+{
+	OctreeNode* curr;
+	std::list<OctreeNode*> toProcess;
+	toProcess.push_back(m_pOctree);
+	while (!toProcess.empty())
+	{
+		curr = toProcess.front();
+		if(curr->GetObjectArray().size() != 0)
+			DrawCube(curr->GetPos(), curr->GetWidth());
+	
+		if (curr->GetChild()[0] == nullptr) break;
+		else
+		{
+			for (int i = 0; i < 8; ++i) {
+	
+				if (curr->GetChildNode(i) != nullptr)
+				{
+	
+					if (curr->GetChildNode(i)->GetObjectArray().size() != 0)
+					{
+						//printf("%d\n", curr->GetChildNode(i)->GetObjectArray().size());
+						//printf("%.f, %.f, %.f, %.f\n", curr->GetChildNode(i)->GetPos().x, curr->GetChildNode(i)->GetPos().y, curr->GetChildNode(i)->GetPos().z, curr->GetChildNode(i)->GetWidth());
+						DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
+					}
+	
+					toProcess.push_back(curr->GetChildNode(i));
+				}
+			}
+		}
+	
+		toProcess.pop_front();
+	}
+}
+
 void Renderer::DrawSystem()
 {
 	glEnable(GL_DEPTH_TEST);
@@ -377,20 +422,17 @@ void Renderer::DrawSystem()
 	//{
 	//	DrawObject(obj);
 	//}
-	//	
 	fTime += g_tick;
-	m_pOctree->update(fTime);
-	
-	DrawParticle();
-	//DrawCube(m_pOctree->GetPos(), m_pOctree->GetWidth());
 
-	for (int i = 0 ; i < 8; ++i)
-	{
-		DrawCube(m_pOctree->GetChild()[i]->GetPos(), m_pOctree->GetChild()[i]->GetWidth());
-	}
+	DrawParticle();
+	DrawOctreee();
+
+	UpdateOctree();
 
 	glDisable(GL_DEPTH_TEST);
 }
+
+
 
 OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit)
 {
@@ -401,6 +443,13 @@ OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depth
 	OctreeNode* pOctNode = new OctreeNode();
 	pOctNode->SetPosition(vCenter);
 	pOctNode->SetWidth(fHalfWidth);
+	pOctNode->SetDepth(depthLimit);
+
+	glm::vec3 aabbMin;
+	glm::vec3 aabbMax;
+
+	aabbMin = vCenter - glm::vec3(fHalfWidth);
+	aabbMax = vCenter + glm::vec3(fHalfWidth);
 
 	//재귀적으로 8개의 자식 노드들을 생성합니다.
 	glm::vec3 vOffset;
@@ -409,20 +458,20 @@ OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depth
 
 	//8개의 자식 노드들에 대해서 중심 위치를 설정하고 트리를 생성.
 	for (int i = 0; i < 8; ++i) {
-
+		
 		vOffset[0] = ((i & 1) ? fStep : -fStep);
 		vOffset[1] = ((i & 4) ? fStep : -fStep);
 		vOffset[2] = ((i & 2) ? fStep : -fStep);
 
-		vChildCenter[0] = vOffset[0]/(float)2 + vCenter[0];
-		vChildCenter[1] = vOffset[1]/(float)2 + vCenter[1];
-		vChildCenter[2] = vOffset[2]/(float)2 + vCenter[2];
+		vChildCenter[0] = (vOffset[0] / (float)2) + vCenter[0];
+		vChildCenter[1] = (vOffset[1] / (float)2) + vCenter[1];
+		vChildCenter[2] = (vOffset[2] / (float)2) + vCenter[2];
 
 		pOctNode->AddChildNode(BuildOctree(vChildCenter, fStep, depthLimit - 1));
 	}
 
-	if(depthLimit != 0)
-		pOctNode->SetIsLeaf(false);
+	if (depthLimit == 0)
+		pOctNode->SetIsLeaf(true);
 
 	return pOctNode;
 }

@@ -20,6 +20,9 @@ public:
 	bool IsInNode(const glm::vec3 pos);
 	bool IsInNode(glm::vec3 nodePos, float nodeWidth, const glm::vec3 pos);
 
+	// Re Build
+	void Rebuild();
+
 	// Set
 		// Set Prev Node
 	void SetParent(OctreeNode* const node) { m_pParent = node; }

@@ -16,9 +16,9 @@ uniform float u_Time;
 
 void main()
 {
-	//v_Pos = a_Pos + ((a_Dir * a_Speed) + (g_gravity * u_Time * a_Speed));
+	v_Pos = a_Pos + ((a_Dir * a_Speed) + (g_gravity * u_Time * a_Speed));
 	
-	v_Pos = a_Pos;
+	//v_Pos = a_Pos;
 	v_Dir = a_Dir;
 	f_Speed = a_Speed;
 	f_CollideTime = a_CollideTime;
