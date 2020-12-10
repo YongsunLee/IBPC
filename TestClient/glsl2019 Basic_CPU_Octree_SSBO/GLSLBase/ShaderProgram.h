@@ -8,6 +8,8 @@ public:
 	void compile(const std::string& file_path_vs, const std::string& file_path_fs);
 	void compile(const std::string& file_path_vs, const std::string& file_path_gs, const std::string& file_path_fs);
 
+	void compile(const std::string& file_path_comp);
+
 	GLuint get() const { return mHandle; }
 
 private:

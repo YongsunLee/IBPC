@@ -5,11 +5,13 @@
 #include "Mesh.h"
 #include "Octree.h"
 #include "ShaderStorageBufferObject.h"
+#include "Texture.h"
 
 class Camera;
 class GameObject;
 class OctreeNode;
 class ShaderStorageBufferObject;
+class Texture;
 
 class Renderer
 {
@@ -31,17 +33,17 @@ public:
 	// Draw Particle
 	void DrawParticle();
 
+	void UpdateSSBO();
 	void DrawSSBOParticle();
 	void DrawSSBOsParticle();
+
+	void UpdateNodeTexture();
 
 	void UpdateOctree();
 	void DrawOctreee();
 
 	// Draw All Object
 	void DrawSystem();
-
-
-
 	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
 
 private:
@@ -100,7 +102,14 @@ private:
 
 	std::vector<ShaderStorageBufferObject*>	m_SSBO;
 	ShaderProgram m_SSBOParticleShader;
-	
+
+	ShaderProgram m_ComputeShader;
+
+
+	Texture* m_NodeTexture;
+	glm::ivec2 m_TextureResolution = glm::ivec2(128, 128);
+	std::vector<OctreeNode::Node> m_NodeBuffer;
+
 	GLuint emptyVAO;
 };
 

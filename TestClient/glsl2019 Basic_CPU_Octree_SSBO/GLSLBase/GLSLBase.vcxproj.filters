@@ -40,6 +40,9 @@
     <ClCompile Include="ShaderStorageBufferObject.cpp">
       <Filter>ShaderStorageBufferObject</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -80,6 +83,9 @@
     </ClInclude>
     <ClInclude Include="ShaderStorageBufferObject.h">
       <Filter>ShaderStorageBufferObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +133,9 @@
     </None>
     <None Include="Shaders\SSBOsParticle.vert">
       <Filter>Shader\Particle\SSBOs</Filter>
+    </None>
+    <None Include="Shaders\UpdateComputeShader.comp">
+      <Filter>Shader\Particle\Update</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +204,12 @@
     </Filter>
     <Filter Include="Shader\Particle\SSBOs">
       <UniqueIdentifier>{f3cf26c2-86de-4fbc-952d-a7192ebedf3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Particle\Update">
+      <UniqueIdentifier>{df879fd2-05d8-4cef-85eb-055691f6aa7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{008dcf42-4a8b-404e-b6a4-deaa26dc174c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

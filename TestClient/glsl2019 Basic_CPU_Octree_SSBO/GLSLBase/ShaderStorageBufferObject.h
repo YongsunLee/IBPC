@@ -17,6 +17,8 @@ public:
 	void bind();
 	void bindBase(GLuint idx);
 
+	GLuint GetBuffer() { return m_SSBO; };
+
 	template <typename T>
 	void setData(const std::vector<T>& data) {
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO);

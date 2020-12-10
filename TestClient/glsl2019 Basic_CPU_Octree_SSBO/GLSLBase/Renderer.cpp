@@ -30,6 +30,8 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	//m_SSBOsParticleShader.compile("./Shaders/SSBOsParticle.vert", "./Shaders/SSBOsParticle.geom", "./Shaders/SSBOsParticle.frag");
 	m_SSBOParticleShader.compile("./Shaders/SSBOParticle.vert", "./Shaders/SSBOParticle.geom", "./Shaders/SSBOParticle.frag");
 
+	m_ComputeShader.compile("./Shaders/UpdateComputeShader.comp");
+
 	m_CubeShader.compile("./Shaders/BoundingBox.vert", "./Shaders/BoundingBox.frag");
 
 	// Create Mesh Data
@@ -37,7 +39,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Octree
 	m_pOctree = new OctreeNode();	
-	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 50, 3);
+	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 30, 3);
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -186,24 +188,152 @@ void Renderer::CreateParticleSSBOs()
 
 void Renderer::CreateParticleSSBO()
 {
-	m_particleCnt = 50000;
+	m_particleCnt = 1024;
 
 	Vertex vertex;
-	for (int j = 0; j < m_particleCnt; ++j) {
-		//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(20.0, 20.f), RAND_FLOAT(-25.0f, 25.0f));
-		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-25.0f, 25.0f));
+	//for (int j = 0; j < m_particleCnt; ++j) {
+	//	//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(20.0, 20.f), RAND_FLOAT(-25.0f, 25.0f));
+	//	//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.0, 80.f), RAND_FLOAT(-25.0f, 25.0f));
+	//	vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), 20.0f, 0.0f);
+	//
+	//	//printf("pos : %.f, %.f, %.f \n", vertex.pos.x, vertex.pos.y, vertex.pos.z);
+	//
+	//	vertex.dir = glm::vec3(0, -1.0f, 0);
+	//	vertex.speed = RAND_FLOAT(1.0f, 2.0f);
+	//	vertex.collide_time = 0.0f;
+	//
+	//	m_ParticlesSSBO.push_back(vertex);
+	//
+	//	if (m_pOctree->IsInNode(vertex.pos))
+	//		m_pOctree->AddObject(&vertex, j);
+	//}
 
-		vertex.dir = glm::vec3(0, -1.0f, 0);
-		vertex.speed = RAND_FLOAT(5.0, 10.0f);
+	for (int i = 0; i < m_particleCnt / 2; i++) {
+	
+		//vertex.pos = glm::vec3(RAND_FLOAT(0.0f, 30.0f), RAND_FLOAT(-15, 15), RAND_FLOAT(-15, 15));
+		vertex.pos = glm::vec3( 30.0f, RAND_FLOAT(-15, 15), 15.f);
+		vertex.dir = glm::vec3(-1.0f, 0.0f, 0);
+		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
 		vertex.collide_time = 0.0f;
-
+	
 		m_ParticlesSSBO.push_back(vertex);
-
+		
 		if (m_pOctree->IsInNode(vertex.pos))
-			m_pOctree->AddObject(&vertex);
+			m_pOctree->AddObject(&vertex, i);
+	}
+	
+	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
+		vertex.pos = glm::vec3(-30.f, RAND_FLOAT(-15, 15), 15.f);
+		vertex.dir = glm::vec3(1.0f, 0.0f, 0);
+		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
+		vertex.collide_time = 0.0f;
+	
+		m_ParticlesSSBO.push_back(vertex);
+	
+		if (m_pOctree->IsInNode(vertex.pos))
+			m_pOctree->AddObject(&vertex, i);
 	}
 
+	//printf("----------init-------------\n");
+
 	m_SSBO.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_ParticlesSSBO));
+
+	// Texture
+	m_NodeTexture = new Texture(Texture::RGBA16f, m_TextureResolution);
+	
+	// Loop
+	OctreeNode* curr;
+	std::list<OctreeNode*> toProcess;
+	toProcess.push_back(m_pOctree);
+	
+	glm::ivec2 pixel = glm::ivec2(0);
+	glm::ivec2 childOffset = glm::ivec2(1, 0);
+	int NodeArrayOffset = 1;
+	
+	glm::vec4 data = glm::vec4(0.0f);
+	
+	int pCnt = 0;
+	while (!toProcess.empty())
+	{
+		curr = toProcess.front();
+	
+		// 현재 픽셀좌표가 0이 아니면
+		// x가 Texture 해상도를 넘기면 y가 하나 내려감
+		// x가 Texture 해상도를 넘기면 0으로 돌아감
+		if (pixel.x != 0) {
+			pixel.y += int(pixel.x / m_TextureResolution.x);
+			pixel.x = pixel.x % m_TextureResolution.x;
+		}
+	
+		// 자식 좌표
+		if (childOffset.x != 0) {
+			childOffset.y += int(childOffset.x / m_TextureResolution.x);
+			childOffset.x = childOffset.x % m_TextureResolution.x;
+		}
+	
+		// 새로 노드 하나 생성
+		OctreeNode::Node octToNode;
+	
+		//현재 파티클이 이 트리에 포함되는가
+		//이 트리가 자식노드를 가지는가
+		//-> Yes 자식 탐색
+		//-> No 파티클 충돌 준비 (몇개의 파티클을 가지고 있는가, Ref 저장)
+		//
+		//자식노드 개수, 파티클 개수, 파티클 Ref 저장
+		//
+		//옥트리 루트의 값을 노드로 변경해서 저장
+		octToNode.info.x = curr->GetObejctIDs().size();	// Size는 파티클의 개수를 의미
+		octToNode.info.y = curr->GetChild().size();		// 자식개수
+		octToNode.info.z = curr->GetIsLeaf();			// Leaf 노드인가?
+		octToNode.info.w = curr->GetDepth();			// depth
+	
+		//printf("isLeaf: %i, depth: %i, stored at pixel: (%i, %i) with number of Particles: %d\n", 
+		//	    octToNode.info.z, octToNode.info.w, pixel.x, pixel.y, octToNode.info.x);
+	
+		pCnt += curr->GetObejctIDs().size();
+	
+		// 현재 파티클 개수만큼
+		for (int i = 0; i < curr->GetObejctIDs().size(); ++i) {
+			// Ref 저장
+			octToNode.vertexRef[i].x = curr->GetObejctIDs()[i];
+		}
+		//BBox 용 Pos, Radius
+		octToNode.pos = curr->GetPos();
+		octToNode.radius = curr->GetWidth();
+	
+		// 노드 배열에 추가
+		m_NodeBuffer.push_back(octToNode);
+	
+		// 이 노드를 가리키는 data를 텍스처에 저장해야함
+		// 자식노드가 nullptr이면
+		if (curr->GetChildNode(0) == nullptr)
+		{
+			data = glm::vec4(0, 0, 0, 0);
+		}
+		else
+		{
+			for (int i = 0; i < 8; ++i) {
+				toProcess.push_back(curr->GetChildNode(i));
+			}
+	
+			// 노드 data 세팅
+			// Offset x, y, number of active children, and offset in the one-dimensional array.
+			data = glm::vec4(childOffset.x, childOffset.y, 8, NodeArrayOffset);
+	
+			// 1차원 배열 offset 8개씩 밀어서
+			NodeArrayOffset += 8;
+	
+			// 자식 노드 오프셋도 8개 밀어서
+			childOffset.x += 8;
+		}
+		m_NodeTexture->setData(glm::ivec2(1, 1), pixel, &data);
+		pixel.x += 1;
+		toProcess.pop_front();
+	}
+	//printf("%d\n", pCnt);
+	//printf("---init---\n");
+
+	m_SSBO.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_NodeBuffer));
 }
 
 
@@ -425,6 +555,25 @@ void Renderer::DrawParticle()
 	glDisableVertexAttribArray(aCollideTime);
 }
 
+void Renderer::UpdateSSBO()
+{
+	auto shader = m_ComputeShader.get();
+	glUseProgram(shader);
+
+	glUniform1i(glGetUniformLocation(shader, "u_NodeTexture"), 0);
+	m_NodeTexture->bind(0);
+
+	for (int i = 0 ; i < 2; ++i)
+	{
+		m_SSBO[i]->bindBase(i);
+	}
+
+	//m_SSBO[0]->bindBase(0);
+
+	glDispatchCompute((GLint)m_particleCnt / 8, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
 void Renderer::DrawSSBOParticle()
 {
 	auto shader = m_SSBOParticleShader.get();
@@ -475,19 +624,70 @@ void Renderer::DrawSSBOsParticle()
 	glBindVertexArray(0);
 }
 
+void Renderer::UpdateNodeTexture()
+{
+	glGetNamedBufferSubData(m_SSBO[1]->GetBuffer(), 0, m_NodeBuffer.size() * sizeof(OctreeNode::Node), m_NodeBuffer.data());
+	
+	// Loop
+	OctreeNode* curr;
+	std::list<OctreeNode*> toProcess;
+	toProcess.push_back(m_pOctree);
+
+	int pCnt = 0;
+	int nodeCnt = 0;
+	while (!toProcess.empty())
+	{
+		curr = toProcess.front();
+
+		m_NodeBuffer[nodeCnt].info.x = curr->GetObejctIDs().size();	// Size는 파티클의 개수를 의미
+		m_NodeBuffer[nodeCnt].info.y = curr->GetChild().size();		// 자식개수
+		m_NodeBuffer[nodeCnt].info.z = curr->GetIsLeaf();			// Leaf 노드인가?
+		m_NodeBuffer[nodeCnt].info.w = curr->GetDepth();			// depth
+		
+		//pCnt += m_NodeBUffer[nodeCnt].info.x;
+
+		// 현재 파티클 개수만큼
+		for (int i = 0; i < curr->GetObejctIDs().size(); ++i) {
+			// Ref 저장
+			m_NodeBuffer[nodeCnt].vertexRef[i].x = curr->GetObejctIDs()[i];
+		}
+
+		// 이 노드를 가리키는 data를 텍스처에 저장해야함
+		// 자식노드가 nullptr이면
+		if (curr->GetChildNode(0) != nullptr)
+		{
+			for (int i = 0; i < 8; ++i) {
+				toProcess.push_back(curr->GetChildNode(i));
+			}
+		}
+		nodeCnt += 1;
+		toProcess.pop_front();
+	}
+
+	//m_SSBO[1]->setData(m_NodeBuffer);
+
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO[1]->GetBuffer());
+	//glBufferSubData(m_SSBO[1]->GetBuffer(), 0, m_NodeBuffer.size(), m_NodeBuffer.data());
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
 
 void Renderer::UpdateOctree()
 {
 	// all tree Object Clear
 	m_pOctree->Rebuild();
-	
+
+	// GPU Update Data Load CPU
+	glGetNamedBufferSubData(m_SSBO[0]->GetBuffer(), 0, m_particleCnt * sizeof(Vertex), m_ParticlesSSBO.data());
+
+	int idx = 0;
 	for (auto p : m_ParticlesSSBO)
 	{
-		// CPU Particle Position Update
-		p.pos = p.pos + ((p.dir * p.speed) + (glm::vec3(0, -1, 0) * fTime * p.speed));
-	
+		//printf("pos : %.f, %.f, %.f \n", p.pos.x, p.pos.y, p.pos.z);
 		if (m_pOctree->IsInNode(p.pos))
-			m_pOctree->AddObject(&p);
+		{
+			m_pOctree->AddObject(&p, idx);
+		}
+		idx += 1;
 	}
 }
 
@@ -496,7 +696,7 @@ void Renderer::DrawOctreee()
 	OctreeNode* curr;
 	std::list<OctreeNode*> toProcess;
 	toProcess.push_back(m_pOctree);
-	int cnt = 0;
+
 	while (!toProcess.empty())
 	{
 		curr = toProcess.front();
@@ -507,28 +707,14 @@ void Renderer::DrawOctreee()
 		else
 		{
 			for (int i = 0; i < 8; ++i) {
-	
-				if (curr->GetChildNode(i) != nullptr)
-				{
-	
-					if (curr->GetChildNode(i)->GetObjectArray().size() != 0)
-					{
-						cnt += curr->GetChildNode(i)->GetObjectArray().size();
-
-						//printf("%.f, %.f, %.f, %.f\n", curr->GetChildNode(i)->GetPos().x, 
-						//curr->GetChildNode(i)->GetPos().y, curr->GetChildNode(i)->GetPos().z, curr->GetChildNode(i)->GetWidth());
-						DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
-					}
-	
-					toProcess.push_back(curr->GetChildNode(i));
-				}
+				if (curr->GetChildNode(i)->GetObjectArray().size() != 0)
+					DrawCube(curr->GetChildNode(i)->GetPos(), curr->GetChildNode(i)->GetWidth());
+				toProcess.push_back(curr->GetChildNode(i));
 			}
 		}
 	
 		toProcess.pop_front();
 	}
-	
-	//printf("%d\n", cnt);
 }
 
 void Renderer::DrawSystem()
@@ -546,11 +732,16 @@ void Renderer::DrawSystem()
 	
 	//DrawParticle();
 	//DrawSSBOsParticle();
+	
+	UpdateSSBO();
 	DrawSSBOParticle();
 
 	// Octree
-	DrawOctreee();
 	UpdateOctree();
+	DrawOctreee();
+
+	// Node
+	UpdateNodeTexture();
 
 	glDisable(GL_DEPTH_TEST);
 }

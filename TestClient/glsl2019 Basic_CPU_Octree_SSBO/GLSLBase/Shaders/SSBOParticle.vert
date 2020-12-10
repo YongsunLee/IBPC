@@ -23,9 +23,9 @@ const vec3 g_gravity = vec3(0, -1, 0);
 
 void main()
 {
-	v_Pos = particles[gl_VertexID].pos + ((particles[gl_VertexID].dir * particles[gl_VertexID].speed) + (g_gravity * u_Time * particles[gl_VertexID].speed));
+	//v_Pos = particles[gl_VertexID].pos + ((particles[gl_VertexID].dir * particles[gl_VertexID].speed) + (g_gravity * u_Time * particles[gl_VertexID].speed));
 
-	//v_Pos = particles[gl_VertexID].pos;
+	v_Pos = particles[gl_VertexID].pos;
 	v_Dir = particles[gl_VertexID].dir;
 	f_Speed =  particles[gl_VertexID].speed;
 	f_collideTime =  particles[gl_VertexID].collide_time;
