@@ -3,10 +3,9 @@
 class OctreeNode {
 public:
 	struct Node {
-		glm::vec3 pos;
-		float radius;
-		glm::ivec4 info; // Node information: x = nrOfTriangles, y = number of active children, z = is node a leaf node? 
-		glm::ivec4 vertexRef[2048]; // 
+		glm::vec4 aabb;
+		glm::ivec4 info;
+		glm::ivec4 vertexRef[2048]; 
 	};
 
 	OctreeNode();

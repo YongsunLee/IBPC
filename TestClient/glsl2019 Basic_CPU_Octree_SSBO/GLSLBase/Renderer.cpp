@@ -39,7 +39,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Octree
 	m_pOctree = new OctreeNode();	
-	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 30, 3);
+	m_pOctree = BuildOctree(glm::vec3(0, 0, 0), 50, 3);
 
 	//Create VBOs
 	CreateVertexBufferObjects();
@@ -188,7 +188,7 @@ void Renderer::CreateParticleSSBOs()
 
 void Renderer::CreateParticleSSBO()
 {
-	m_particleCnt = 1024;
+	m_particleCnt = 200000;
 
 	Vertex vertex;
 	//for (int j = 0; j < m_particleCnt; ++j) {
@@ -210,9 +210,10 @@ void Renderer::CreateParticleSSBO()
 
 	for (int i = 0; i < m_particleCnt / 2; i++) {
 	
+		vertex.pos = glm::vec3(RAND_FLOAT(-75, -25.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
 		//vertex.pos = glm::vec3(RAND_FLOAT(0.0f, 30.0f), RAND_FLOAT(-15, 15), RAND_FLOAT(-15, 15));
-		vertex.pos = glm::vec3( 30.0f, RAND_FLOAT(-15, 15), 15.f);
-		vertex.dir = glm::vec3(-1.0f, 0.0f, 0);
+		//vertex.pos = glm::vec3( 30.0f, RAND_FLOAT(-15, 15), 15.f);
+		vertex.dir = glm::vec3(1.0f, 0.0f, 0);
 		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
 		vertex.collide_time = 0.0f;
 	
@@ -223,8 +224,9 @@ void Renderer::CreateParticleSSBO()
 	}
 	
 	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
-		vertex.pos = glm::vec3(-30.f, RAND_FLOAT(-15, 15), 15.f);
-		vertex.dir = glm::vec3(1.0f, 0.0f, 0);
+		vertex.pos = glm::vec3(RAND_FLOAT(25, 75.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
+		//vertex.pos = glm::vec3(-30.f, RAND_FLOAT(-15, 15), 15.f);
+		vertex.dir = glm::vec3(-1.0f, 0.0f, 0);
 		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
 		vertex.collide_time = 0.0f;
 	
@@ -290,7 +292,7 @@ void Renderer::CreateParticleSSBO()
 		//printf("isLeaf: %i, depth: %i, stored at pixel: (%i, %i) with number of Particles: %d\n", 
 		//	    octToNode.info.z, octToNode.info.w, pixel.x, pixel.y, octToNode.info.x);
 	
-		pCnt += curr->GetObejctIDs().size();
+		//pCnt += curr->GetObejctIDs().size();
 	
 		// 현재 파티클 개수만큼
 		for (int i = 0; i < curr->GetObejctIDs().size(); ++i) {
@@ -298,8 +300,10 @@ void Renderer::CreateParticleSSBO()
 			octToNode.vertexRef[i].x = curr->GetObejctIDs()[i];
 		}
 		//BBox 용 Pos, Radius
-		octToNode.pos = curr->GetPos();
-		octToNode.radius = curr->GetWidth();
+		octToNode.aabb.x = curr->GetPos().x;
+		octToNode.aabb.y = curr->GetPos().y;
+		octToNode.aabb.z = curr->GetPos().z;
+		octToNode.aabb.w = curr->GetWidth();
 	
 		// 노드 배열에 추가
 		m_NodeBuffer.push_back(octToNode);
@@ -563,6 +567,8 @@ void Renderer::UpdateSSBO()
 	glUniform1i(glGetUniformLocation(shader, "u_NodeTexture"), 0);
 	m_NodeTexture->bind(0);
 
+	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
+
 	for (int i = 0 ; i < 2; ++i)
 	{
 		m_SSBO[i]->bindBase(i);
@@ -570,7 +576,7 @@ void Renderer::UpdateSSBO()
 
 	//m_SSBO[0]->bindBase(0);
 
-	glDispatchCompute((GLint)m_particleCnt / 8, 1, 1);
+	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -626,8 +632,6 @@ void Renderer::DrawSSBOsParticle()
 
 void Renderer::UpdateNodeTexture()
 {
-	glGetNamedBufferSubData(m_SSBO[1]->GetBuffer(), 0, m_NodeBuffer.size() * sizeof(OctreeNode::Node), m_NodeBuffer.data());
-	
 	// Loop
 	OctreeNode* curr;
 	std::list<OctreeNode*> toProcess;
@@ -664,11 +668,9 @@ void Renderer::UpdateNodeTexture()
 		toProcess.pop_front();
 	}
 
-	//m_SSBO[1]->setData(m_NodeBuffer);
-
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO[1]->GetBuffer());
-	//glBufferSubData(m_SSBO[1]->GetBuffer(), 0, m_NodeBuffer.size(), m_NodeBuffer.data());
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBO[1]->GetBuffer());
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, m_NodeBuffer.size() * sizeof(OctreeNode::Node), &m_NodeBuffer[0]);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void Renderer::UpdateOctree()
@@ -689,6 +691,7 @@ void Renderer::UpdateOctree()
 		}
 		idx += 1;
 	}
+	UpdateNodeTexture();
 }
 
 void Renderer::DrawOctreee()
@@ -739,9 +742,6 @@ void Renderer::DrawSystem()
 	// Octree
 	UpdateOctree();
 	DrawOctreee();
-
-	// Node
-	UpdateNodeTexture();
 
 	glDisable(GL_DEPTH_TEST);
 }

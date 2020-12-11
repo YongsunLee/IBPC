@@ -105,7 +105,6 @@ private:
 
 	ShaderProgram m_ComputeShader;
 
-
 	Texture* m_NodeTexture;
 	glm::ivec2 m_TextureResolution = glm::ivec2(128, 128);
 	std::vector<OctreeNode::Node> m_NodeBuffer;
