@@ -24,18 +24,15 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	//Load shaders
 	m_SolidRectShader.compile("./Shaders/SolidRect.vert", "./Shaders/SolidRect.frag");
 	m_MeshShader.compile("./Shaders/SolidMesh.vert", "./Shaders/SolidMesh.frag");
-	m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.geom", "./Shaders/Particle.frag");
-	//m_ParticleShader.compile("./Shaders/Particle.vert", "./Shaders/Particle.frag");
-
-	//m_SSBOsParticleShader.compile("./Shaders/SSBOsParticle.vert", "./Shaders/SSBOsParticle.geom", "./Shaders/SSBOsParticle.frag");
 	m_SSBOParticleShader.compile("./Shaders/SSBOParticle.vert", "./Shaders/SSBOParticle.geom", "./Shaders/SSBOParticle.frag");
 
 	m_ComputeShader.compile("./Shaders/UpdateComputeShader.comp");
-
 	m_CubeShader.compile("./Shaders/BoundingBox.vert", "./Shaders/BoundingBox.frag");
 
 	// Create Mesh Data
-	m_CubeMesh.load("./Resource/Model/LightingCheckBoard_smooth.fbx");
+	m_CubeMesh.load("./Resource/Model/Cube.fbx");
+	m_Rabbit.load("./Resource/Model/TinyBunny.fbx");
+	m_Dragon.load("./Resource/Model/TinyDragonOptimized.fbx");
 
 	// Octree
 	m_pOctree = new OctreeNode();	
@@ -123,67 +120,25 @@ void Renderer::CreateVertexBufferObjects()
 
 void Renderer::CreateSceneObject()
 {
-	m_Objects.emplace_back();
-	auto& board = m_Objects.back();
-	board.set_mesh(&m_CubeMesh);
-	board.transform().set_pos(glm::vec3(0.0f, -0.5f, 0.0f));
-	board.transform().set_scale(glm::vec3(1.f));
-}
-
-void Renderer::CreateParticleVBO()
-{
-	m_particleCnt = 1024;
+	//m_Objects.emplace_back();
+	//auto& board = m_Objects.back();
+	//board.set_mesh(&m_CubeMesh);
+	//board.transform().set_pos(glm::vec3(0.0f, -30.0, 0.0f));
+	////board.transform().set_scale(glm::vec3(1.f));
+	//board.transform().set_scale(glm::vec3(1.f, 0.1f, 1.f));
+	//m_Objects.emplace_back();
+	//
+	//auto& bunny = m_Objects.back();
+	//bunny.set_mesh(&m_Rabbit);
+	//bunny.transform().set_pos(glm::vec3(0.0f, -25.0, 0));
+	//bunny.transform().set_scale(glm::vec3(5.0f));
+	//m_Objects.emplace_back();
 	
-	Vertex vertex;
-	for (int j = 0; j < m_particleCnt; ++j) {
-		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-25.0f, 25.0f));
-		vertex.dir = glm::vec3(0, -1.0f, 0);
-		vertex.speed = RAND_FLOAT(2.0, 5.0f);
-		m_Particles.push_back(vertex);
-
-		if(m_pOctree->IsInNode(vertex.pos)) 
-			m_pOctree->AddObject(&vertex);
-	}
-
-	glGenBuffers(1, &m_ParticleVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * m_particleCnt, m_Particles.data(), GL_DYNAMIC_DRAW);
-}
-
-void Renderer::CreateParticleSSBOs()
-{
-	m_particleCnt = 1024;
-
-	std::vector<glm::vec3> positionBuffer;
-	std::vector<glm::vec3> dirBuffer;
-	std::vector<float> speedBuffer;
-	std::vector<float> timeBuffer;
-
-	Vertex vertex;
-	for (int j = 0; j < m_particleCnt; ++j) {
-		vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.f, 80.f), RAND_FLOAT(-25.0f, 25.0f));
-		vertex.dir = glm::vec3(0, -1.0f, 0);
-		vertex.speed = RAND_FLOAT(2.0, 5.0f);
-		vertex.collide_time = 0.0f;
-
-		positionBuffer.push_back(vertex.pos);
-		dirBuffer.push_back(vertex.dir);
-		speedBuffer.push_back(vertex.speed);
-		timeBuffer.push_back(vertex.collide_time);
-
-		m_Particles.push_back(vertex);
-
-		if (m_pOctree->IsInNode(vertex.pos))
-			m_pOctree->AddObject(&vertex);
-	}
-
-	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, positionBuffer));
-	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, dirBuffer));
-	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, speedBuffer));
-	m_SSBOs.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, timeBuffer));
-
-	glGenVertexArrays(1, &emptyVAO);
-	glBindVertexArray(0);
+	//auto& dragon = m_Objects.back();
+	//dragon.set_mesh(&m_Dragon);
+	//dragon.transform().set_pos(glm::vec3(0.0f, -25.0, 0));
+	//dragon.transform().set_scale(glm::vec3(5.0f));
+	//dragon.transform().set_angle(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void Renderer::CreateParticleSSBO()
@@ -191,10 +146,11 @@ void Renderer::CreateParticleSSBO()
 	m_particleCnt = 200000;
 
 	Vertex vertex;
+	// 떨어지는 형태
 	//for (int j = 0; j < m_particleCnt; ++j) {
 	//	//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(20.0, 20.f), RAND_FLOAT(-25.0f, 25.0f));
-	//	//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.0, 80.f), RAND_FLOAT(-25.0f, 25.0f));
-	//	vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), 20.0f, 0.0f);
+	//	vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), RAND_FLOAT(40.0, 80.f), RAND_FLOAT(-25.0f, 25.0f));
+	//	//vertex.pos = glm::vec3(RAND_FLOAT(-25.0f, 25.0f), 20.0f, 0.0f);
 	//
 	//	//printf("pos : %.f, %.f, %.f \n", vertex.pos.x, vertex.pos.y, vertex.pos.z);
 	//
@@ -208,13 +164,14 @@ void Renderer::CreateParticleSSBO()
 	//		m_pOctree->AddObject(&vertex, j);
 	//}
 
+	// 좌우에서 오는 형태
 	for (int i = 0; i < m_particleCnt / 2; i++) {
-	
-		vertex.pos = glm::vec3(RAND_FLOAT(-75, -25.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
+		vertex.pos = glm::vec3(RAND_FLOAT(-75, -50), RAND_FLOAT(-25, 25), RAND_FLOAT(-25, 25));
+		//vertex.pos = glm::vec3(RAND_FLOAT(-75, -25.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
 		//vertex.pos = glm::vec3(RAND_FLOAT(0.0f, 30.0f), RAND_FLOAT(-15, 15), RAND_FLOAT(-15, 15));
 		//vertex.pos = glm::vec3( 30.0f, RAND_FLOAT(-15, 15), 15.f);
 		vertex.dir = glm::vec3(1.0f, 0.0f, 0);
-		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
+		vertex.speed = RAND_FLOAT(0.01f, 0.1f);
 		vertex.collide_time = 0.0f;
 	
 		m_ParticlesSSBO.push_back(vertex);
@@ -224,10 +181,11 @@ void Renderer::CreateParticleSSBO()
 	}
 	
 	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
-		vertex.pos = glm::vec3(RAND_FLOAT(25, 75.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
+		vertex.pos = glm::vec3(RAND_FLOAT(50, 75), RAND_FLOAT(-25, 25), RAND_FLOAT(-25, 25));
+		//vertex.pos = glm::vec3(RAND_FLOAT(25, 75.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
 		//vertex.pos = glm::vec3(-30.f, RAND_FLOAT(-15, 15), 15.f);
 		vertex.dir = glm::vec3(-1.0f, 0.0f, 0);
-		vertex.speed = RAND_FLOAT(0.1f, 1.0f);
+		vertex.speed = RAND_FLOAT(0.01f, 0.1f);
 		vertex.collide_time = 0.0f;
 	
 		m_ParticlesSSBO.push_back(vertex);
@@ -339,7 +297,6 @@ void Renderer::CreateParticleSSBO()
 
 	m_SSBO.push_back(new ShaderStorageBufferObject(GL_DYNAMIC_DRAW, m_NodeBuffer));
 }
-
 
 void Renderer::Test()
 {
@@ -515,50 +472,6 @@ void Renderer::DrawObject(GameObject& obj)
 	//DrawCube(obj);
 }
 
-void Renderer::DrawParticle()
-{
-	auto shader = m_ParticleShader.get();
-	glUseProgram(shader);
-
-	if (nullptr != m_pCamera) {
-		GLuint gProjViewId = glGetUniformLocation(shader, "u_ProjView");
-		glUniformMatrix4fv(gProjViewId, 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
-	}
-
-	glUniform1i(glGetUniformLocation(shader, "u_ClientWidth"), g_ClientWidth);
-	glUniform1i(glGetUniformLocation(shader, "u_ClientHeight"), g_ClientHeight);
-	auto& camera_pos = m_pCamera->GetPos();
-	glUniform3f(glGetUniformLocation(shader, "u_CameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
-
-	//fTime += g_tick;
-
-	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_ParticleVBO);
-
-	GLint aPos = glGetAttribLocation(shader, "a_Pos");
-	GLint aDir = glGetAttribLocation(shader, "a_Dir");
-	GLint aSpeed = glGetAttribLocation(shader, "a_Speed");
-	GLint aCollideTime = glGetAttribLocation(shader, "a_CollideTime");
-
-	glEnableVertexAttribArray(aPos);
-	glEnableVertexAttribArray(aDir);
-	glEnableVertexAttribArray(aSpeed);
-	glEnableVertexAttribArray(aCollideTime);
-
-	glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(aDir, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(float) * 3));
-	glVertexAttribPointer(aSpeed, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(float) * 6));
-	glVertexAttribPointer(aCollideTime, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(float) * 7));
-
-	glDrawArrays(GL_POINTS, 0, 50000);
-
-	glDisableVertexAttribArray(aPos);
-	glDisableVertexAttribArray(aDir);
-	glDisableVertexAttribArray(aSpeed);
-	glDisableVertexAttribArray(aCollideTime);
-}
-
 void Renderer::UpdateSSBO()
 {
 	auto shader = m_ComputeShader.get();
@@ -567,15 +480,12 @@ void Renderer::UpdateSSBO()
 	glUniform1i(glGetUniformLocation(shader, "u_NodeTexture"), 0);
 	m_NodeTexture->bind(0);
 
-	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
-
 	for (int i = 0 ; i < 2; ++i)
 	{
 		m_SSBO[i]->bindBase(i);
 	}
 
-	//m_SSBO[0]->bindBase(0);
-
+	//glDispatchCompute((GLint)m_particleCnt, 1, 1);
 	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
@@ -590,8 +500,6 @@ void Renderer::DrawSSBOParticle()
 		glUniformMatrix4fv(gProjViewId, 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
 	}
 
-	glUniform1f(glGetUniformLocation(shader, "u_Time"), fTime);
-
 	glUniform1i(glGetUniformLocation(shader, "u_ClientWidth"), g_ClientWidth);
 	glUniform1i(glGetUniformLocation(shader, "u_ClientHeight"), g_ClientHeight);
 	auto& camera_pos = m_pCamera->GetPos();
@@ -603,31 +511,6 @@ void Renderer::DrawSSBOParticle()
 	//glDrawArraysInstanced(GL_POINTS, 0, 1, m_particleCnt);
 	glDrawArrays(GL_POINTS, 0, m_particleCnt);
 	//glBindVertexArray(0);
-}
-
-void Renderer::DrawSSBOsParticle()
-{
-	auto shader = m_SSBOsParticleShader.get();
-	glUseProgram(shader);
-
-	if (nullptr != m_pCamera) {
-		GLuint gProjViewId = glGetUniformLocation(shader, "u_ProjView");
-		glUniformMatrix4fv(gProjViewId, 1, GL_FALSE, &m_pCamera->GetProjView()[0][0]);
-	}
-
-	glUniform1i(glGetUniformLocation(shader, "u_ClientWidth"), g_ClientWidth);
-	glUniform1i(glGetUniformLocation(shader, "u_ClientHeight"), g_ClientHeight);
-	auto& camera_pos = m_pCamera->GetPos();
-	glUniform3f(glGetUniformLocation(shader, "u_CameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
-
-	for (int i = 0; i < 4; i++) {
-		m_SSBOs[i]->bindBase(i);
-	}
-	glBindVertexArray(emptyVAO);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	//glDrawArraysInstanced(GL_POINTS, 0, 1, m_particleCnt);
-	glDrawArrays(GL_POINTS, 0, m_particleCnt);
-	glBindVertexArray(0);
 }
 
 void Renderer::UpdateNodeTexture()
@@ -727,11 +610,10 @@ void Renderer::DrawSystem()
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	//for (auto& obj : m_Objects)
-	//{
-	//	DrawObject(obj);
-	//}
-	fTime += g_tick;
+	for (auto& obj : m_Objects)
+	{
+		DrawObject(obj);
+	}
 	
 	//DrawParticle();
 	//DrawSSBOsParticle();
@@ -741,12 +623,12 @@ void Renderer::DrawSystem()
 
 	// Octree
 	UpdateOctree();
-	DrawOctreee();
+	//DrawOctreee();
+
+	//printf("x : %.f, y : %.f , z : %.f\n", m_pCamera->GetPos().x, m_pCamera->GetPos().y, m_pCamera->GetPos().z);
 
 	glDisable(GL_DEPTH_TEST);
 }
-
-
 
 OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit)
 {
@@ -758,12 +640,6 @@ OctreeNode* Renderer::BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depth
 	pOctNode->SetPosition(vCenter);
 	pOctNode->SetWidth(fHalfWidth);
 	pOctNode->SetDepth(depthLimit);
-
-	glm::vec3 aabbMin;
-	glm::vec3 aabbMax;
-
-	aabbMin = vCenter - glm::vec3(fHalfWidth);
-	aabbMax = vCenter + glm::vec3(fHalfWidth);
 
 	//재귀적으로 8개의 자식 노드들을 생성합니다.
 	glm::vec3 vOffset;

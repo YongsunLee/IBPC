@@ -12,8 +12,8 @@ but WITHOUT ANY WARRANTY.
 #include "Renderer.h"
 #include "Camera.h"
 
-unsigned int g_ClientWidth = 1000;
-unsigned int g_ClientHeight = 1000;
+unsigned int g_ClientWidth = 500;
+unsigned int g_ClientHeight = 500;
 
 Renderer* g_Renderer = NULL;
 Camera* g_MainCamera = NULL;
@@ -28,9 +28,15 @@ void RenderScene(void)
 	g_Renderer->DrawSystem();
 
 	glutSwapBuffers();
-
 	auto du = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
 
+	std::string title = "Octree Particle Collision System | ";
+	std::string str_du = std::to_string(du);
+	title += str_du.data();
+	title += "ms";
+
+	glutSetWindowTitle(title.data());
+	//std::cout << du << "\n";
 	//std::cout << du << std::endl;
 }
 

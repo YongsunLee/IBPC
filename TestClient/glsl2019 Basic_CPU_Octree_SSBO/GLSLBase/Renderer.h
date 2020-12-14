@@ -30,16 +30,11 @@ public:
 	// Draw Mesh Object
 	void DrawObject(GameObject& obj);
 	
-	// Draw Particle
-	void DrawParticle();
-
 	void UpdateSSBO();
 	void DrawSSBOParticle();
-	void DrawSSBOsParticle();
-
-	void UpdateNodeTexture();
 
 	void UpdateOctree();
+	void UpdateNodeTexture();
 	void DrawOctreee();
 
 	// Draw All Object
@@ -51,8 +46,6 @@ private:
 	void CreateVertexBufferObjects(); 
 
 	void CreateSceneObject();
-	void CreateParticleVBO();
-	void CreateParticleSSBOs();
 	void CreateParticleSSBO();
 
 private:
@@ -75,6 +68,8 @@ private:
 
 	// Mesh Object
 	Mesh m_CubeMesh;
+	Mesh m_Rabbit;
+	Mesh m_Dragon;
 	std::vector<GameObject> m_Objects;
 
 	// VBO
@@ -97,18 +92,13 @@ private:
 	OctreeNode* m_pOctree;
 
 	int m_particleCnt = 0;
-	std::vector<ShaderStorageBufferObject*>	m_SSBOs;
-	ShaderProgram m_SSBOsParticleShader;
 
 	std::vector<ShaderStorageBufferObject*>	m_SSBO;
 	ShaderProgram m_SSBOParticleShader;
-
 	ShaderProgram m_ComputeShader;
-
 	Texture* m_NodeTexture;
 	glm::ivec2 m_TextureResolution = glm::ivec2(128, 128);
 	std::vector<OctreeNode::Node> m_NodeBuffer;
-
 	GLuint emptyVAO;
 };
 

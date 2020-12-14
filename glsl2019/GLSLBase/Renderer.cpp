@@ -364,13 +364,13 @@ void Renderer::DrawParticleSystem()
 {
 	glEnable(GL_DEPTH_TEST);
 
-	m_FB_ObjectCDTexture.bind();
-	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	for (auto& obj : m_Objects)
-		DrawObjectCDTexture(obj);
-		//DrawObjectFixedCDTexture(obj);
-	m_FB_ObjectCDTexture.release();
+	//m_FB_ObjectCDTexture.bind();
+	//glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//for (auto& obj : m_Objects)
+	//	DrawObjectCDTexture(obj);
+	//	//DrawObjectFixedCDTexture(obj);
+	//m_FB_ObjectCDTexture.release();
 	
 	if (m_UpdateSwitch == true) DrawParticleCDTexture(); // DrawParticleFixedCDTexture();
 
@@ -454,24 +454,26 @@ void Renderer::CreateParticleTFO()
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_pTFOs[i].tf);
 		glBindBuffer(GL_ARRAY_BUFFER, m_pTFOs[i].buf);
 
-		m_pTFOs[i].count = 100;
+		m_pTFOs[i].count = 200000;
 		std::vector<Vertex> particles;
 		Vertex vertex;
 
 		// -> <- Collision
 		for (int j = 0; j < m_pTFOs[i].count / 2; ++j) {
-			vertex.pos = glm::vec3(RAND_FLOAT(-0.15f, -0.1f), RAND_FLOAT(-0.1, -0.05), RAND_FLOAT(0.6, 0.625));
+			vertex.pos = glm::vec3(RAND_FLOAT(-2.f, -0.5f), RAND_FLOAT(-0.5, 0.5), RAND_FLOAT(-0.5, 0.5));
+			//vertex.pos = glm::vec3(RAND_FLOAT(-0.15f, -0.1f), RAND_FLOAT(-0.1, -0.05), RAND_FLOAT(0.6, 0.625));
 			//vertex.dir = glm::vec3(RAND_FLOAT(-1, 1), RAND_FLOAT(1, 5), RAND_FLOAT(-1, 1));
 			vertex.dir = glm::vec3(1.0f, 0, 0);
-			vertex.speed = 0.01f;
+			vertex.speed = 0.1f;
 			particles.push_back(vertex);
 		}
 
 		for (int j = m_pTFOs[i].count / 2; j < m_pTFOs[i].count; ++j) {
-			vertex.pos = glm::vec3(RAND_FLOAT(0.1f, 0.15f), RAND_FLOAT(-0.1, -0.05), RAND_FLOAT(0.6, 0.625));
+			vertex.pos = glm::vec3(RAND_FLOAT(0.5f, 2.f), RAND_FLOAT(-0.5, 0.5), RAND_FLOAT(-0.5, 0.5));
+			//vertex.pos = glm::vec3(RAND_FLOAT(0.1f, 0.15f), RAND_FLOAT(-0.1, -0.05), RAND_FLOAT(0.6, 0.625));
 			//vertex.dir = glm::vec3(RAND_FLOAT(-1, 1), RAND_FLOAT(1, 5), RAND_FLOAT(-1, 1));
 			vertex.dir = glm::vec3(-1.0f, 0, 0);
-			vertex.speed = 0.01f;
+			vertex.speed = 0.1f;
 			particles.push_back(vertex);
 		}
 
@@ -556,7 +558,7 @@ void Renderer::CreateSceneObjects()
 	cube.transform().set_pos(glm::vec3(0, -0.5f, 0));
 	cube.transform().set_scale(glm::vec3(0.01f, 0.001f, 0.01f));
 	m_Objects.emplace_back();
-	
+
 	auto& bunny = m_Objects.back();
 	bunny.set_mesh(&m_BunnyMesh);
 	bunny.transform().set_pos(glm::vec3(-0.0f, -0.5f, 0));

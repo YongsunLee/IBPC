@@ -18,13 +18,10 @@ out vec3 v_Dir;
 out float f_Speed;
 out float f_collideTime;
 
-uniform float u_Time;
 const vec3 g_gravity = vec3(0, -1, 0);
 
 void main()
 {
-	//v_Pos = particles[gl_VertexID].pos + ((particles[gl_VertexID].dir * particles[gl_VertexID].speed) + (g_gravity * u_Time * particles[gl_VertexID].speed));
-
 	v_Pos = particles[gl_VertexID].pos;
 	v_Dir = particles[gl_VertexID].dir;
 	f_Speed =  particles[gl_VertexID].speed;

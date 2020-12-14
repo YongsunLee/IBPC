@@ -3,9 +3,9 @@
 
 Camera::Camera()
 	: m_vUp			{ glm::vec3(0.0f, 1.0f, 0.0f) }
-	, m_vLook		{ glm::vec3(0.0f, -0.3f, -1.0f) }
+	, m_vLook		{ glm::vec3(0.0f, 0.0f, -1.0f) }
 	, m_vRight		{ glm::vec3(1.0f, 0.0f, 0.0f) }
-	, m_vPos		{ glm::vec3(0.0f, 0.0, 0.9f) }
+	, m_vPos		{ glm::vec3(0.0f, 0.0, 1.5f) }
 	, m_ProjType	{ ProjType ::Perspective }
 	, m_fFovy		{ 45.0f }
 	, m_fAspect		{ static_cast<float>(g_ClientWidth/2) / static_cast<float>(g_ClientHeight) }

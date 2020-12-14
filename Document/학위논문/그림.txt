@@ -37,29 +37,46 @@
 [그림 3-7] Render Scene and Collision Detection Texture along z-axis offset
 [그림 3-8] Fixed Collision Detection Camera and Mobile Render Camera
 
+[표 4-1] Experimental results(ms) according to the number of particles
 [그림 4-1] Bunny Mesh Collision Result
 [그림 4-2] Dragon Mesh Collision Result
 
-[그림 5-1] Collision Pass Off/On
-[그림 5-2] Particle Collision Result
-[그림 5-3] Camera Position Test
-[그림 5-4] Tested the particles after reducing the particle speed.
-[그림 5-5] The frequency of collisions per second increased 10 times.
-[그림 5-6] Move the camera
-[그림 5-7] Image-based Collision Processing Error
+[표 5-1] Experimental results(ms) according to the number of particles by Depth3 Octree Collision System
+[그림 5-1] Octree Particle Collision System
+[그림 5-2] Depth 3 Octree Collision Dragon & Bunny Mesh Collision Result
+[그림 5-3] Comparison chart of average experimental results of Octree Collision and CDT Collision
+[그림 5-4] Particle collision experiment from X-axis movement
+[그림 5-5] Comparison chart of X-axis movement experimental results of Octree Collision and CDT Collision
+[그림 5-6] Long Shot and Close-Up Shot of Image-based Particle Collision
+[그림 5-7] Long Shot and Close-Up Shot of Octree Collision
+
+[그림 6-1] Collision Pass Off/On
+[그림 6-2] Particle Collision Result
+[그림 6-3] Camera Position Test
+[그림 6-4] Tested the particles after reducing the particle speed.
+[그림 6-5] The frequency of collisions per second increased 10 times.
+[그림 6-6] Move the camera
+[그림 6-7] Image-based Collision Processing Error
 
 
 
-제1장. 서론
+제1장. 서론  1
 
-제2장. 관련연구
+제2장. 관련연구  6
 
-제3장. 이미지 기반 충돌 시스템 구성
-제1절 Transform Feedback
-제2절 파티클 충돌 및 갱신 단계
-제3절 파티클 렌더링 단계
-제4절 카메라 위치 탐색과정
+제3장. 이미지 기반 충돌 시스템 구성  8
+제1절 Transform Feedback  8
+제2절 파티클 충돌 및 갱신 단계  9
+제3절 파티클 렌더링 단계  16
+제4절 카메라 위치 탐색과정  17
 
-제4장. 성능 측정 결과
+제4장. 성능 측정 결과  22
 
-제5장. 결론 및 문제점과 향후 연구
+제5장. 옥트리 파티클 충돌처리 시스템과의 비교  26
+제1절 옥트리 파티클 충돌처리 시스템 구성  26
+제2절 이미지 기반 파티클 충돌처리 시스템과의 비교  28
+
+제6장. 결론 및 문제점과 향후 연구 33
+
+참고문헌 40
+Abstract 41
