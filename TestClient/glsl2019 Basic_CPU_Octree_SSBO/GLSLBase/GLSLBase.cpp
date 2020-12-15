@@ -72,6 +72,13 @@ void KeyInput(unsigned char key, int x, int y)
 	g_MainCamera->KeyInput(key, x, y);
 	switch (key) {
 	case VK_ESCAPE: glutExit(); break;
+	case VK_TAB:
+		if (g_Renderer->m_UpdateSwitch == false) {
+			g_Renderer->m_UpdateSwitch = true;
+		}
+		else
+			g_Renderer->m_UpdateSwitch = false;
+		break;
 	}
 	RenderScene();
 }

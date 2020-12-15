@@ -5,7 +5,7 @@ public:
 	struct Node {
 		glm::vec4 aabb;
 		glm::ivec4 info;
-		glm::ivec4 vertexRef[2048]; 
+		glm::ivec4 vertexRef[1024]; 
 	};
 
 	OctreeNode();

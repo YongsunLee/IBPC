@@ -13,7 +13,7 @@ struct Vertex{
 struct Node {
 	vec4 aabb;
 	ivec4 info;
-	ivec4 vertexRef[2048];
+	ivec4 vertexRef[1024];
 };
 
 bool IsInNode(vec3 nodePos, float nodeWidth, const vec3 pos)

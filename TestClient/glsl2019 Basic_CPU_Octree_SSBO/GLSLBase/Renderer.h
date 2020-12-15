@@ -40,6 +40,8 @@ public:
 	// Draw All Object
 	void DrawSystem();
 	OctreeNode* BuildOctree(glm::vec3 vCenter, FLOAT fHalfWidth, int depthLimit);
+	
+	bool m_UpdateSwitch = false;
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -100,5 +102,7 @@ private:
 	glm::ivec2 m_TextureResolution = glm::ivec2(128, 128);
 	std::vector<OctreeNode::Node> m_NodeBuffer;
 	GLuint emptyVAO;
+
+
 };
 

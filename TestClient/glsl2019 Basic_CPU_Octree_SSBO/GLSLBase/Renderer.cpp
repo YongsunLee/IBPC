@@ -3,8 +3,6 @@
 #include "GameObject.h"
 #include "Renderer.h"
 
-const float g_tick = 0.0166666666666667f;
-
 Renderer::Renderer(int windowSizeX, int windowSizeY)
 {
 	Initialize(windowSizeX, windowSizeY);
@@ -120,30 +118,30 @@ void Renderer::CreateVertexBufferObjects()
 
 void Renderer::CreateSceneObject()
 {
-	//m_Objects.emplace_back();
-	//auto& board = m_Objects.back();
-	//board.set_mesh(&m_CubeMesh);
-	//board.transform().set_pos(glm::vec3(0.0f, -30.0, 0.0f));
-	////board.transform().set_scale(glm::vec3(1.f));
-	//board.transform().set_scale(glm::vec3(1.f, 0.1f, 1.f));
-	//m_Objects.emplace_back();
-	//
+	m_Objects.emplace_back();
+	auto& board = m_Objects.back();
+	board.set_mesh(&m_CubeMesh);
+	board.transform().set_pos(glm::vec3(0.0f, -30.0, 0.0f));
+	//board.transform().set_scale(glm::vec3(1.f));
+	board.transform().set_scale(glm::vec3(1.f, 0.1f, 1.f));
+	m_Objects.emplace_back();
+	
 	//auto& bunny = m_Objects.back();
 	//bunny.set_mesh(&m_Rabbit);
 	//bunny.transform().set_pos(glm::vec3(0.0f, -25.0, 0));
 	//bunny.transform().set_scale(glm::vec3(5.0f));
 	//m_Objects.emplace_back();
 	
-	//auto& dragon = m_Objects.back();
-	//dragon.set_mesh(&m_Dragon);
-	//dragon.transform().set_pos(glm::vec3(0.0f, -25.0, 0));
-	//dragon.transform().set_scale(glm::vec3(5.0f));
-	//dragon.transform().set_angle(glm::vec3(0.0f, 0.0f, 1.0f));
+	auto& dragon = m_Objects.back();
+	dragon.set_mesh(&m_Dragon);
+	dragon.transform().set_pos(glm::vec3(0.0f, -25.0, 0));
+	dragon.transform().set_scale(glm::vec3(5.0f));
+	dragon.transform().set_angle(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void Renderer::CreateParticleSSBO()
 {
-	m_particleCnt = 200000;
+	m_particleCnt = 50000;
 
 	Vertex vertex;
 	// 떨어지는 형태
@@ -166,12 +164,12 @@ void Renderer::CreateParticleSSBO()
 
 	// 좌우에서 오는 형태
 	for (int i = 0; i < m_particleCnt / 2; i++) {
-		vertex.pos = glm::vec3(RAND_FLOAT(-75, -50), RAND_FLOAT(-25, 25), RAND_FLOAT(-25, 25));
-		//vertex.pos = glm::vec3(RAND_FLOAT(-75, -25.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
+		//vertex.pos = glm::vec3(RAND_FLOAT(-25, -15), RAND_FLOAT(-1, 1), RAND_FLOAT(-1, 1));
+		vertex.pos = glm::vec3(RAND_FLOAT(-75, -25.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
 		//vertex.pos = glm::vec3(RAND_FLOAT(0.0f, 30.0f), RAND_FLOAT(-15, 15), RAND_FLOAT(-15, 15));
 		//vertex.pos = glm::vec3( 30.0f, RAND_FLOAT(-15, 15), 15.f);
 		vertex.dir = glm::vec3(1.0f, 0.0f, 0);
-		vertex.speed = RAND_FLOAT(0.01f, 0.1f);
+		vertex.speed = RAND_FLOAT(0.05f, 0.05f);
 		vertex.collide_time = 0.0f;
 	
 		m_ParticlesSSBO.push_back(vertex);
@@ -181,11 +179,12 @@ void Renderer::CreateParticleSSBO()
 	}
 	
 	for (int i = m_particleCnt / 2; i < m_particleCnt; i++) {
-		vertex.pos = glm::vec3(RAND_FLOAT(50, 75), RAND_FLOAT(-25, 25), RAND_FLOAT(-25, 25));
-		//vertex.pos = glm::vec3(RAND_FLOAT(25, 75.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
+		//vertex.pos = glm::vec3(RAND_FLOAT(15, 25), RAND_FLOAT(-1, 1), RAND_FLOAT(-1, 1));
+		//vertex.pos = glm::vec3(RAND_FLOAT(50, 75), RAND_FLOAT(-25, 25), RAND_FLOAT(-25, 25));
+		vertex.pos = glm::vec3(RAND_FLOAT(25, 75.0f), RAND_FLOAT(-25, 25.f), RAND_FLOAT(-25, 25.0f));
 		//vertex.pos = glm::vec3(-30.f, RAND_FLOAT(-15, 15), 15.f);
 		vertex.dir = glm::vec3(-1.0f, 0.0f, 0);
-		vertex.speed = RAND_FLOAT(0.01f, 0.1f);
+		vertex.speed = RAND_FLOAT(0.05f, 0.05f);
 		vertex.collide_time = 0.0f;
 	
 		m_ParticlesSSBO.push_back(vertex);
@@ -485,7 +484,7 @@ void Renderer::UpdateSSBO()
 		m_SSBO[i]->bindBase(i);
 	}
 
-	//glDispatchCompute((GLint)m_particleCnt, 1, 1);
+	//glDispatchCompute((GLint)m_particleCnt / 10, 1, 1);
 	glDispatchCompute((GLint)m_particleCnt / 128, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
@@ -610,15 +609,15 @@ void Renderer::DrawSystem()
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	for (auto& obj : m_Objects)
-	{
-		DrawObject(obj);
-	}
+	//for (auto& obj : m_Objects)
+	//{
+	//	DrawObject(obj);
+	//}
 	
 	//DrawParticle();
 	//DrawSSBOsParticle();
 	
-	UpdateSSBO();
+	if(m_UpdateSwitch) UpdateSSBO();
 	DrawSSBOParticle();
 
 	// Octree

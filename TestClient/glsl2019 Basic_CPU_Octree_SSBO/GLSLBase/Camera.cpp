@@ -5,7 +5,7 @@ Camera::Camera()
 	: m_vUp			{ glm::vec3(0.0f, 1.0f, 0.0f) }
 	, m_vLook		{ glm::vec3(0.0f, 0.0f, -1.0f) }
 	, m_vRight		{ glm::vec3(1.0f, 0.0f, 0.0f) }
-	, m_vPos		{ glm::vec3(0.0f, 0.0, 85.f) }
+	, m_vPos		{ glm::vec3(0.0f, 0.0, 80) }
 	//, m_vPos		{ glm::vec3(0, 0, 80) }
 	, m_ProjType	{ ProjType ::Perspective }
 	, m_fFovy		{ 45.0f }
