@@ -454,7 +454,7 @@ void Renderer::CreateParticleTFO()
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_pTFOs[i].tf);
 		glBindBuffer(GL_ARRAY_BUFFER, m_pTFOs[i].buf);
 
-		m_pTFOs[i].count = 200000;
+		m_pTFOs[i].count = 100000;
 		std::vector<Vertex> particles;
 		Vertex vertex;
 
