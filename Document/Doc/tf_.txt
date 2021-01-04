@@ -1,8 +1,0 @@
-Transform Feedback을 사용하는 경우 Vertex Processing 단계에서 생성되는 프리미티브의 데이터를 미리 설정한 Varying을 통해 Buffer Object에 갱신한다.
-본 논문의 충돌과 업데이트를 처리하는 단계에서 기하 셰이더를 사용하고 Transform Feedback을 이용한다. 
-이 단계의 프리미티브 설정은 GL_POINTS 값으로 설정되어 있으며 기하 셰이더의 out vertex의 최대값이 1로 되어있으므로 생성되는 프리미티브는 정점이다.
- gs out vertex max 값을 1로 지정하였기 때문에 정점의 개수에 변화가 없다. 
-렌더링을 하는 단계에서는 gs out vertex max가 4개의 값을 가지고 있지만 Transform Feedback 기능을 사용하지 않기 때문에 두개의 Buffer Object의 크기를 같은 값으로 사용한다.
-본 논문에서 Transform Feedback의 Varying 값을 파티클의 위치, 방향, 속도, 충돌시간을 지정하였다.
-
-
